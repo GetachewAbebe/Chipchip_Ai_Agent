@@ -1,0 +1,13 @@
+# Core backend
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+
+# LangChain Agent
+langchain
+langchain-community
+langchain-openai
+openai
+
+# Optional: logging, pydantic (included via FastAPI), etc.

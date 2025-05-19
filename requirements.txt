@@ -4,7 +4,7 @@ uvicorn
 sqlalchemy
 psycopg2-binary
 
-# LangChain Agent
+
 langchain
 langchain-community
 langchain-openai

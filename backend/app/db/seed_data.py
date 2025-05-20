@@ -1,75 +1,101 @@
-# Script to load sample data
-import random
-from datetime import timedelta, date
-from sqlalchemy.orm import Session
-from app.db.models import Base, User, GroupLeader, Order, Product, OrderItem
-from app.db.session import engine, SessionLocal
+from faker import Faker
+from random import choice, randint, sample
+from datetime import datetime, timedelta
+from app.db.models import (
+    Base, Customer, GroupLeader, CustomerGroupLeaderMap,
+    Product, Order, OrderItem, SegmentEnum, ChannelEnum
+)
+from app.db.database import SessionLocal, engine
 
-Base.metadata.drop_all(bind=engine)
+fake = Faker()
+db = SessionLocal()
+
+# 1. Create tables if not exists
 Base.metadata.create_all(bind=engine)
 
-db: Session = SessionLocal()
+# 2. Seed group leaders
+group_leaders = [
+    GroupLeader(name=fake.name(), joined_date=fake.date_time_between(start_date="-1y", end_date="now"))
+    for _ in range(50)
+]
+db.add_all(group_leaders)
+db.commit()
 
-channels = ["organic", "referral", "paid ad"]
+# 3. Seed customers and map to group leaders
+customers = []
+customer_leader_map = []
+
+for _ in range(1000):
+    segment = choice(list(SegmentEnum))
+    channel = choice(list(ChannelEnum))
+    signup = fake.date_time_between(start_date="-6M", end_date="now")
+    customer = Customer(
+        name=fake.name(),
+        email=fake.unique.email(),
+        segment=segment,
+        registration_channel=channel,
+        signup_date=signup
+    )
+    customers.append(customer)
+
+db.add_all(customers)
+db.commit()
+
+# Map customers to group leaders randomly
+for customer in customers:
+    group_leader = choice(group_leaders)
+    mapping = CustomerGroupLeaderMap(customer_id=customer.id, group_leader_id=group_leader.id)
+    customer_leader_map.append(mapping)
+
+db.add_all(customer_leader_map)
+db.commit()
+
+# 4. Seed products
+categories = ["Produce", "Stationery", "Snacks", "Beverages"]
+product_names = ["Apple", "Tomato", "Banana", "Notebook", "Pen", "Juice", "Cookies"]
+
 products = [
-    ("Tomato", "vegetable"),
-    ("Banana", "fruit"),
-    ("Carrot", "vegetable"),
-    ("Apple", "fruit"),
-    ("Onion", "vegetable"),
-    ("Lettuce", "vegetable"),
-    ("Mango", "fruit"),
+    Product(
+        name=name,
+        category=choice(categories),
+        type="fresh produce" if name in ["Apple", "Tomato", "Banana"] else "other",
+        price=round(fake.pyfloat(left_digits=2, right_digits=2, positive=True), 2)
+    )
+    for name in product_names
 ]
 
-# Add products
-product_objs = []
-for name, cat in products:
-    p = Product(name=name, category=cat)
-    db.add(p)
-    product_objs.append(p)
-
-# Add group leaders
-group_leaders = []
-for i in range(10):
-    gl = GroupLeader(name=f"Leader {i+1}")
-    db.add(gl)
-    group_leaders.append(gl)
-
-# Add users
-users = []
-start_date = date.today() - timedelta(days=365)
-for i in range(200):
-    u = User(
-        name=f"User {i+1}",
-        signup_channel=random.choice(channels),
-        signup_date=start_date + timedelta(days=random.randint(0, 364))
-    )
-    db.add(u)
-    users.append(u)
-
+db.add_all(products)
 db.commit()
 
-# Add orders
-for user in users:
-    for _ in range(random.randint(1, 10)):
-        order_date = user.signup_date + timedelta(days=random.randint(0, 90))
+# 5. Seed orders and order items
+orders = []
+order_items = []
+
+for customer in customers:
+    for _ in range(randint(1, 5)):  # Each customer makes 1–5 orders
+        order_date = fake.date_time_between(start_date=customer.signup_date, end_date="now")
+        selected_products = sample(products, randint(1, 3))
         order = Order(
-            user_id=user.id,
-            group_leader_id=random.choice(group_leaders).id,
-            order_date=order_date
+            customer_id=customer.id,
+            order_datetime=order_date,
+            total_amount=0  # We'll update this below
         )
         db.add(order)
-        db.flush()  # to get order.id
+        db.flush()  # Get order.id before committing
 
-        # Add order items
-        for _ in range(random.randint(1, 3)):
-            item = OrderItem(
-                order_id=order.id,
-                product_id=random.choice(product_objs).id,
-                quantity=random.randint(1, 5),
-                price=round(random.uniform(1.5, 10.0), 2)
-            )
-            db.add(item)
+        total = 0
+        for product in selected_products:
+            qty = randint(1, 5)
+            item = OrderItem(order_id=order.id, product_id=product.id, quantity=qty)
+            order_items.append(item)
+            total += product.price * qty
+
+        order.total_amount = round(total, 2)
+        orders.append(order)
 
 db.commit()
-print("✅ Sample data inserted.")
+db.add_all(order_items)
+db.commit()
+
+print("✅ Database seeded with customers, leaders, products, and orders.")
+db.close()

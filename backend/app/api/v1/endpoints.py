@@ -1,17 +1,19 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from app.agent.query_engine import get_agent
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
-router = APIRouter()
+app = FastAPI()
 
-class QueryRequest(BaseModel):
-    question: str
+# CORS setup for frontend to access backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # replace with your frontend domain for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@router.post("/ask")
-def ask_agent(request: QueryRequest):
-    try:
-        agent = get_agent()
-        answer = agent.run(request.question)
-        return {"question": request.question, "answer": answer}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/ask")
+async def ask(request: Request):
+    data = await request.json()
+    question = data.get("question")
+    return {"answer": f"Answer to your question: {question}"}

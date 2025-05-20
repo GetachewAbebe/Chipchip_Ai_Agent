@@ -1,47 +1,43 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from app.db import models, database
-from app.routes import ask
+from app.db.database import SessionLocal
 
 app = FastAPI()
 
-# CORS setup to allow frontend requests
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Replace with your frontend domain in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 @app.on_event("startup")
-def on_startup():
+def startup_event():
     models.Base.metadata.create_all(bind=database.engine)
-
-@app.post("/seed")
-def seed_all():
-    from app.db.database import SessionLocal
-    from app.db.models import Product, Customer, Order
 
     db = SessionLocal()
 
-    c1 = Customer(name="Alice", email="alice@example.com")
-    c2 = Customer(name="Bob", email="bob@example.com")
+    # Check if data already exists
+    if db.query(models.Customer).first():
+        db.close()
+        return  # Prevent duplicate insert
+
+    # Insert Customers
+    c1 = models.Customer(name="Alice", email="alice@example.com")
+    c2 = models.Customer(name="Bob", email="bob@example.com")
     db.add_all([c1, c2])
     db.commit()
 
-    p1 = Product(name="Notebook", category="Stationery", price=10)
-    p2 = Product(name="Pen", category="Stationery", price=2)
+    # Insert Products
+    p1 = models.Product(name="Notebook", category="Stationery", price=10)
+    p2 = models.Product(name="Pen", category="Stationery", price=2)
     db.add_all([p1, p2])
     db.commit()
 
-    o1 = Order(customer_id=c1.id, total_amount=12.0)
-    o2 = Order(customer_id=c2.id, total_amount=2.0)
+    # Insert Orders
+    o1 = models.Order(customer_id=c1.id, total_amount=12.0)
+    o2 = models.Order(customer_id=c2.id, total_amount=2.0)
     db.add_all([o1, o2])
     db.commit()
 
-    db.close()
-    return {"message": "All data seeded successfully"}
+    # Insert Order Items
+    oi1 = models.OrderItem(order_id=o1.id, product_id=p1.id, quantity=1)
+    oi2 = models.OrderItem(order_id=o1.id, product_id=p2.id, quantity=1)
+    oi3 = models.OrderItem(order_id=o2.id, product_id=p2.id, quantity=1)
+    db.add_all([oi1, oi2, oi3])
+    db.commit()
 
-# Include the router for /ask endpoint
-app.include_router(ask.router)
+    db.close()

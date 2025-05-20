@@ -1,37 +1,19 @@
-# Placeholder for LangChain SQL agent logic
+from langchain_openai import ChatOpenAI
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.utilities.sql_database import SQLDatabase
-from langchain_openai import ChatOpenAI
-from sqlalchemy.engine import URL
+from app.db.database import engine
 import os
 
-def get_sql_url():
-    return URL.create(
-        drivername="postgresql+psycopg2",
-        username=os.getenv("PGUSER"),
-        password=os.getenv("PGPASSWORD"),
-        host=os.getenv("PGHOST"),
-        port=os.getenv("PGPORT"),
-        database=os.getenv("PGDATABASE")
-    )
+# Reuse SQLAlchemy engine
+db = SQLDatabase(engine)
 
-def get_agent():
-    db = SQLDatabase.from_uri(str(get_sql_url()))
+# LangChain model setup (use gpt-3.5-turbo or gpt-4)
+llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
-    llm = ChatOpenAI(
-        model="gpt-4",  # or gpt-3.5-turbo
-        temperature=0,
-        openai_api_key=os.getenv("OPENAI_API_KEY")
-    )
-
-    toolkit = SQLDatabaseToolkit(db=db, llm=llm)
-
-    agent = create_sql_agent(
-        llm=llm,
-        toolkit=toolkit,
-        verbose=True,
-        agent_type="openai-tools"
-    )
-    return agent
+# Build the SQL agent
+agent_executor = create_sql_agent(
+    llm=llm,
+    toolkit=SQLDatabaseToolkit(db=db, llm=llm),
+    verbose=True,
+)

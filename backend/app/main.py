@@ -3,23 +3,34 @@ from app.db import models, database
 
 app = FastAPI()
 
-# Create tables on startup
 @app.on_event("startup")
 def on_startup():
     models.Base.metadata.create_all(bind=database.engine)
 
-# (Optional) Endpoint to seed sample data
 @app.post("/seed")
-def seed_data():
+def seed_all():
     from app.db.database import SessionLocal
-    from app.db.models import Product
+    from app.db.models import Product, Customer, Order
 
     db = SessionLocal()
-    db.add_all([
-        Product(name="Toothpaste", category="Health", price=3),
-        Product(name="Notebook", category="Stationery", price=5),
-        Product(name="Water Bottle", category="Utility", price=10),
-    ])
+
+    # Insert sample customers
+    c1 = Customer(name="Alice", email="alice@example.com")
+    c2 = Customer(name="Bob", email="bob@example.com")
+    db.add_all([c1, c2])
     db.commit()
+
+    # Insert sample products
+    p1 = Product(name="Notebook", category="Stationery", price=10)
+    p2 = Product(name="Pen", category="Stationery", price=2)
+    db.add_all([p1, p2])
+    db.commit()
+
+    # Insert sample orders
+    o1 = Order(customer_id=c1.id, total_amount=12.0)
+    o2 = Order(customer_id=c2.id, total_amount=2.0)
+    db.add_all([o1, o2])
+    db.commit()
+
     db.close()
-    return {"message": "Sample data inserted"}
+    return {"message": "All data seeded successfully"}

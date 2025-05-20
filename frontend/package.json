@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite ",
+    "build": "vite build"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

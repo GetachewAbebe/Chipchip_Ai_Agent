@@ -1,5 +1,5 @@
 import React from "react";
-import AskAgent from "./componets/AskAgent";
+import AskAgent from "@/components/AskAgent";
 
 function App() {
   return (

@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
+import "./AskAgent.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -61,7 +62,7 @@ const AskAgent = () => {
           responsive: true,
           plugins: {
             legend: { position: "top" },
-            title: { display: true, text: "Top Selling Produce" }
+            title: { display: true, text: "Top Selling Items" }
           }
         }}
       />
@@ -69,27 +70,27 @@ const AskAgent = () => {
   };
 
   return (
-    <div style={{ maxWidth: "700px", margin: "auto", padding: "2rem" }}>
-      <h2>💬 Ask Marketing Agent</h2>
+    <div className="ask-container">
+      <h2 className="section-title">Ask a Question</h2>
       <textarea
+        className="question-box"
         rows="4"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
-        placeholder="Type a question like: 'Top 3 produce items in April?'"
-        style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
+        placeholder="e.g., Top 3 produce items in August?"
       />
-      <button onClick={ask} disabled={loading}>
+      <button className="ask-button" onClick={ask} disabled={loading}>
         {loading ? "Loading..." : "Ask"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-msg">{error}</p>}
 
       {answer && (
-        <div style={{ marginTop: "1rem" }}>
-          <h4>📋 Answer:</h4>
-          <pre>{answer}</pre>
-          <hr />
-          <h4>📊 Chart (Example):</h4>
+        <div className="answer-section">
+          <h4>Answer:</h4>
+          <pre className="answer-text">{answer}</pre>
+          <hr style={{ margin: "1rem 0" }} />
+          <h4>Chart View (Example):</h4>
           {renderChart()}
         </div>
       )}

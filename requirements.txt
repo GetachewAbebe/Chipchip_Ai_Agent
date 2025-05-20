@@ -10,4 +10,6 @@ langchain-community
 langchain-openai
 openai
 
+
+
 # Optional: logging, pydantic (included via FastAPI), etc.

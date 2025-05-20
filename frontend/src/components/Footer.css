@@ -1,54 +1,23 @@
 .footer {
-  background-color: #b91c1c; /* Tailwind's red-700 */
+  background-color: red;
   color: white;
-  padding: 2rem;
-  margin-top: 3rem;
+  padding: 1rem;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 250px;
+  width: calc(100% - 250px);
 }
 
-.footer-main {
+.footer-content {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 2rem;
 }
 
-.footer-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.footer a {
+.footer-links a {
   color: white;
+  margin-left: 1rem;
   text-decoration: none;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-
-.footer-links ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(100px, 1fr));
-  gap: 0.5rem;
-}
-
-.super-leader-link {
-  display: block;
-  margin-top: 1rem;
-  font-weight: bold;
-}
-
-.footer-bottom {
-  margin-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  padding-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.legal-links a {
-  margin-left: 1.5rem;
 }

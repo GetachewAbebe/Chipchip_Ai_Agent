@@ -1,13 +1,44 @@
-/* frontend/src/components/AskAgent.css */
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.main {
+  margin-left: 250px;
+  padding: 2rem;
+  margin-bottom: 4rem;
+  flex: 1;
+}
+
 textarea {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+.ask-button {
+  background-color: red;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
   border-radius: 4px;
 }
 
-button {
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
+.ask-button:hover {
+  background-color: darkred;
+}
+
+.error {
+  color: red;
+  margin-top: 1rem;
+}
+
+.answer {
+  margin-top: 1rem;
 }

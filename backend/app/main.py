@@ -1,45 +1,35 @@
 from fastapi import FastAPI
+from sqlalchemy import text
 from app.db import models, database
 from app.db.database import SessionLocal
 from app.db.seed_data import seed_if_needed
 
-
 app = FastAPI()
+
+
+def try_alter_tables(engine):
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE customers ADD COLUMN signup_date TIMESTAMP"))
+        except Exception:
+            pass
+        try:
+            conn.execute(text("ALTER TABLE customers ADD COLUMN segment VARCHAR"))
+        except Exception:
+            pass
+        try:
+            conn.execute(text("ALTER TABLE customers ADD COLUMN registration_channel VARCHAR"))
+        except Exception:
+            pass
+
 
 @app.on_event("startup")
 def startup_event():
+    # Create all missing tables
     models.Base.metadata.create_all(bind=database.engine)
+
+    # Try adding missing columns (Render-safe)
+    try_alter_tables(database.engine)
+
+    # Populate data if not already seeded
     seed_if_needed()
-    db = SessionLocal()
-
-    # Check if data already exists
-    if db.query(models.Customer).first():
-        db.close()
-        return
-
-    # Sample Customers
-    c1 = models.Customer(name="Alice", email="alice@example.com")
-    c2 = models.Customer(name="Bob", email="bob@example.com")
-    db.add_all([c1, c2])
-    db.commit()
-
-    # Sample Products
-    p1 = models.Product(name="Notebook", category="Stationery", price=10)
-    p2 = models.Product(name="Pen", category="Stationery", price=2)
-    db.add_all([p1, p2])
-    db.commit()
-
-    # Sample Orders
-    o1 = models.Order(customer_id=c1.id, total_amount=12.0)
-    o2 = models.Order(customer_id=c2.id, total_amount=2.0)
-    db.add_all([o1, o2])
-    db.commit()
-
-    # Sample OrderItems
-    oi1 = models.OrderItem(order_id=o1.id, product_id=p1.id, quantity=1)
-    oi2 = models.OrderItem(order_id=o1.id, product_id=p2.id, quantity=1)
-    oi3 = models.OrderItem(order_id=o2.id, product_id=p2.id, quantity=1)
-    db.add_all([oi1, oi2, oi3])
-    db.commit()
-
-    db.close()

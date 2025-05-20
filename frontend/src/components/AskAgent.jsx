@@ -42,7 +42,6 @@ const AskAgent = () => {
   };
 
   const renderChart = () => {
-    // ⚠️ Replace with parsed data once backend returns structured chart data
     const dummyLabels = ["Tomato", "Banana", "Apple"];
     const dummyData = [100, 120, 90];
 

@@ -1,36 +1,50 @@
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities.sql_database import SQLDatabase
-from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
+from app.utils.database import engine
 
-from app.utils.database import engine  # Make sure this points to your SQLAlchemy engine
+app = FastAPI()
 
-# ✅ Step 1: Reuse SQLAlchemy engine
+# --- LLM and DB Setup ---
 db = SQLDatabase(engine)
-
-# ✅ Step 2: Base LLM setup (OpenAI GPT)
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
-# ✅ Step 3: Stateless agent for single-shot queries (used in /ask)
-agent_executor = create_sql_agent(
-    llm=llm,
-    toolkit=SQLDatabaseToolkit(db=db, llm=llm),
-    verbose=True,
-)
+# --- In-memory cache for user memory sessions ---
+memory_sessions = {}
 
-# ✅ Step 4: Memory for multi-turn chat (used in /chat)
-memory = ConversationBufferMemory(
-    memory_key="chat_history",
-    return_messages=True
-)
+# --- Request model ---
+class ChatRequest(BaseModel):
+    question: str
+    session_id: str  # allow tracking chat history per user/session
 
-# ✅ Step 5: Chat agent with memory (react-style)
-chat_agent_executor = initialize_agent(
-    tools=[],  # Optional: add SQL tools or custom tools later
-    llm=llm,
-    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-    memory=memory,
-    verbose=True,
-)
+# --- Chat agent endpoint ---
+@app.post("/chat")
+async def chat_with_agent(request: ChatRequest):
+    # Retrieve or create memory for this session
+    if request.session_id not in memory_sessions:
+        memory_sessions[request.session_id] = ConversationBufferMemory(
+            memory_key="chat_history",
+            return_messages=True
+        )
+
+    memory = memory_sessions[request.session_id]
+
+    # Initialize agent with memory and SQL tools
+    chat_agent = initialize_agent(
+        tools=toolkit.get_tools(),
+        llm=llm,
+        agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+        memory=memory,
+        verbose=True,
+    )
+
+    try:
+        response = chat_agent.run(request.question)
+        return {"answer": response}
+    except Exception as e:
+        return {"error": str(e)}

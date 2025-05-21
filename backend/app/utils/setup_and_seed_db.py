@@ -12,13 +12,7 @@ from pathlib import Path
 load_dotenv()
 
 # DB Credentials from .env
-PGUSER = os.getenv("PGUSER")
-PGPASSWORD = os.getenv("PGPASSWORD")
-PGHOST = os.getenv("PGHOST")
-PGPORT = os.getenv("PGPORT")
-PGDATABASE = os.getenv("PGDATABASE")
-
-DATABASE_URL = f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE}"
+DATABASE_URL = "postgresql://postgres:ZENStvKGjPthLKeuBBjsdwIsDnpDhZUm@maglev.proxy.rlwy.net:17086/railway"
 
 # Setup SQLAlchemy
 Base = declarative_base()

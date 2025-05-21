@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import json
+from app.utils.setup_and_seed_db import seed_database
+
 
 # 🧩 Load environment variables
 load_dotenv()
@@ -27,9 +29,11 @@ class QuestionRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=500)
 
 # 🔄 Seed on startup if not already seeded
+
 @app.on_event("startup")
 def startup_event():
     seed_database()
+
 
 # 🔌 Include seed-data endpoint
 app.include_router(seed.router)

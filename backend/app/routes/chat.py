@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from backend.agent.query_engine import chat_agent_executor
-from backend.utils.logger import logger  # ✅ Logging support
+from app.agent.query_engine import chat_agent_executor
+from app.utils.logger import logger  # ✅ Logging support
 
 router = APIRouter()
 

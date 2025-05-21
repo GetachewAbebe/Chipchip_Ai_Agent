@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel, Field
 import json
-from backend.utils.logger import logger  # ✅ Import logger
+from app.utils.logger import logger  # ✅ Import logger
 
 
-from backend.agent.query_engine import agent_executor  # ✅ Real agent
+from app.agent.query_engine import agent_executor  # ✅ Real agent
 
 router = APIRouter()
 

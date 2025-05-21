@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import ask, examples, chat, feedback, logs  # ✅ No backend prefix
+from app.routes import ask, examples, chat, feedback, logs
 
 app = FastAPI(title="ChipChip AI Agent")
 

@@ -8,7 +8,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy app code
-COPY ./backend /app/app
+COPY ./backend/app /app/app
 
 # Expose the port Render expects
 EXPOSE 8000

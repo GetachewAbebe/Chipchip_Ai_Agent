@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 # Rest of your existing code
-from backend.utils.models import Base, User, GroupLeader, Product, Order, OrderItem
+from app.utils.models import Base, User, GroupLeader, Product, Order, OrderItem
 # Load environment variables
 load_dotenv()
 

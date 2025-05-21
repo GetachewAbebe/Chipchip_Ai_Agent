@@ -5,7 +5,7 @@ from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 
-from app.db.database import engine  # Make sure this points to your SQLAlchemy engine
+from app.utils.database import engine  # Make sure this points to your SQLAlchemy engine
 
 # ✅ Step 1: Reuse SQLAlchemy engine
 db = SQLDatabase(engine)

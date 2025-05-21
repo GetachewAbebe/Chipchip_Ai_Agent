@@ -6,4 +6,5 @@ router = APIRouter()
 async def ask(request: Request):
     data = await request.json()
     question = data.get("question")
-    return {"answer": f"Answer to your question: {question}"}
+    # Return a dummy placeholder answer
+    return {"answer": f"Answer to your question: '{question}' — This is a placeholder response from the AI agent."}

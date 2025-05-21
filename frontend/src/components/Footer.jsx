@@ -1,15 +1,8 @@
 import React from "react";
-import "./Footer.css";
 
 const Footer = () => (
-  <footer className="footer">
-    <div className="footer-content">
-      <p>© 2025 ChipChip Inc. All rights reserved.</p>
-      <div className="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms & Conditions</a>
-      </div>
-    </div>
+  <footer className="w-full h-[60px] bg-red-600 text-white flex justify-center items-center">
+    <p className="text-sm">© 2025 ChipChip Inc. All rights reserved.</p>
   </footer>
 );
 

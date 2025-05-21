@@ -1,58 +1,169 @@
-import React, { useState } from "react";
-import Sidebar from "./Sidebar";
+import React, { useEffect, useRef, useState } from "react";
+import { IoPaperPlaneOutline } from "react-icons/io5";
+import Header from "./Header";
 import Footer from "./Footer";
-import "./AskAgent.css";
+
+const LOCAL_STORAGE_KEY = "chipchip_chat_memory";
+
+const TypingDots = () => (
+  <div className="flex gap-1 items-center">
+    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+  </div>
+);
 
 const AskAgent = () => {
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
 
   const ask = async () => {
+    if (!question.trim()) return;
+
+    const timestamp = new Date().toLocaleTimeString();
+    const userMsg = { sender: "user", text: question, timestamp };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setQuestion("");
     setLoading(true);
-    setError("");
-    setAnswer(null);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/ask`, {
+      const res = await fetch("https://chipchip-ai-agent-backend.onrender.com/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Something went wrong");
-
-      setAnswer(data.answer);
-    } catch (err) {
-      setError(err.message);
+      const botMsg = { sender: "bot", text: data.answer, timestamp: new Date().toLocaleTimeString() };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch {
+      setMessages((prev) => [...prev, {
+        sender: "bot",
+        text: "⚠️ Sorry, something went wrong.",
+        timestamp: new Date().toLocaleTimeString(),
+      }]);
     }
 
     setLoading(false);
   };
 
-  return (
-    <div className="page">
-      <Sidebar setQuestion={setQuestion} />
-      <div className="main">
-        <textarea
-          rows="3"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask something like: 'Top 3 items this week?'"
-        />
-        <button onClick={ask} className="ask-button" disabled={loading}>
-          {loading ? "Loading..." : "Ask"}
-        </button>
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      ask();
+    }
+  };
 
-        {error && <p className="error">{error}</p>}
-        {answer && (
-          <div className="answer">
-            <h4>📋 Answer:</h4>
-            <pre>{answer}</pre>
+  const startNewChat = () => {
+    setMessages([]);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <div className="flex flex-1">
+        {/* Left panel: Sample questions */}
+        <aside className="w-1/3 bg-gray-100 p-6">
+          <h3 className="text-lg font-semibold mb-4">💡 Sample Queries</h3>
+          <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+            <li>Top 3 products sold in August?</li>
+            <li>Group leaders with no orders last weekend?</li>
+            <li>Cohort analysis of June buyers</li>
+            <li>Highest retention by registration source</li>
+          </ul>
+        </aside>
+
+        {/* Right panel: Chat */}
+        <main className="w-2/3 p-6 flex flex-col">
+          {/* Header row */}
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">🧠 Chat</h2>
+            <button
+              onClick={startNewChat}
+              className="text-sm text-red-600 hover:underline"
+            >
+              🗑️ New Chat
+            </button>
           </div>
-        )}
+
+          {/* Chat messages */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto space-y-4 px-1"
+          >
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex items-start gap-2 ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                {msg.sender === "bot" && <div className="text-xl">🤖</div>}
+
+                <div
+                  className={`max-w-[70%] px-4 py-2 rounded-xl shadow-sm text-sm ${
+                    msg.sender === "user"
+                      ? "bg-gray-200 text-right"
+                      : "bg-white border border-gray-300 text-left"
+                  }`}
+                >
+                  <p className="text-gray-800">{msg.text}</p>
+                </div>
+
+                {msg.sender === "user" && <div className="text-xl">🙂</div>}
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex items-center gap-2 justify-start">
+                <div className="text-xl">🤖</div>
+                <div className="bg-white border border-gray-300 px-4 py-2 rounded-xl text-sm">
+                  <TypingDots />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input area */}
+          <div className="relative w-full mt-3">
+            <textarea
+              rows="2"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your question and press Enter"
+              className="w-full p-3 pr-10 border border-gray-300 rounded-xl resize-none text-sm shadow-sm"
+            />
+            <IoPaperPlaneOutline
+              onClick={ask}
+              className="absolute bottom-3 right-4 text-xl cursor-pointer text-red-600 hover:text-red-700"
+              title="Send"
+            />
+          </div>
+        </main>
       </div>
       <Footer />
     </div>

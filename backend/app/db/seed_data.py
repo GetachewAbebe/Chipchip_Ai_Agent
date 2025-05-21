@@ -12,10 +12,10 @@ fake = Faker()
 def seed_if_needed():
     db = SessionLocal()
 
-    if db.query(Customer).first():
-        db.close()
-        print("Data already seeded.")
-        return
+    # if db.query(Customer).first():
+    #     db.close()
+    #     print("Data already seeded.")
+    #     return
 
     # -------------------- Seed Group Leaders --------------------
     group_leaders = []

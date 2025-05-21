@@ -1,64 +1,68 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 import json
+
+# 🧩 Load environment variables
+load_dotenv()
+
+# 🔁 Import seed function and router
+from app.utils.setup_and_seed_db import seed_database
+from app.routes import seed
 
 app = FastAPI()
 
-# Add CORS middleware to allow frontend requests
+# 🌐 Allow frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Pydantic model to match the frontend's exact structure
+# ✅ Pydantic model for input
 class QuestionRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=500)
 
+# 🔄 Seed on startup if not already seeded
+@app.on_event("startup")
+def startup_event():
+    seed_database()
+
+# 🔌 Include seed-data endpoint
+app.include_router(seed.router)
+
+# 🤖 Main AI endpoint
 @app.post("/ask")
 async def ask(request: Request):
     try:
-        # Parse JSON body
         body = await request.json()
-        
-        # Validate the request using Pydantic model
         question_request = QuestionRequest(**body)
-        
-        # Extract question
         question = question_request.question
-        
-        # Placeholder AI response logic
         answer = generate_ai_response(question)
-        
+
         return {
             "status": "success",
             "question": question,
             "answer": answer
         }
-    
+
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON")
     except ValueError as ve:
-        # Handle validation errors
         raise HTTPException(status_code=422, detail=str(ve))
-    except Exception as e:
-        # Handle any unexpected errors
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
+# 📄 Fake AI response
 def generate_ai_response(question: str) -> str:
-    """
-    Placeholder function for AI response generation
-    """
     if not question:
         return "Please provide a valid question."
-    
-    # Simple placeholder logic
     return f"AI response to: '{question}'. This is a placeholder response."
 
-# Health check endpoint
+# 🔍 Health check
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "message": "Service is up and running"}

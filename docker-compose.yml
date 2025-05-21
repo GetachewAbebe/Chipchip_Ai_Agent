@@ -1,24 +1,45 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:15
+    container_name: chipchip-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Admin
+      POSTGRES_DB: chipchip
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    container_name: chipchip-api
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app/app
+      - ./.env:/app/.env
     env_file:
       - .env
+    depends_on:
+      - db
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: chipchip-frontend
     ports:
       - "5173:80"
     environment:
       VITE_API_URL: http://backend:8000
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

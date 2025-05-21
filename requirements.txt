@@ -11,5 +11,5 @@ langchain-openai
 openai
 Faker
 
-
+pandas
 # Optional: logging, pydantic (included via FastAPI), etc.

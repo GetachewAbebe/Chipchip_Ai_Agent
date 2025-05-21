@@ -1,0 +1,201 @@
+id,name,email,channel,acquisition_campaign,signup_date,segment,created_at
+1,Kathleen Rowe,matthew93@example.com,organic,facebook,2024-12-09 22:41:58.587807,Retired,2024-12-09 22:41:58.587807
+2,John Lewis,dvelasquez@example.org,paid_ad,facebook,2024-12-16 22:41:58.588039,Working Professionals,2024-12-16 22:41:58.588039
+3,Alexandra Kelley,ramirezvalerie@example.com,referral,influencer,2025-01-16 22:41:58.588210,Parents,2025-01-16 22:41:58.588210
+4,Kristy Bennett,ramirezricky@example.net,organic,google_ads,2025-05-15 22:41:58.588357,Parents,2025-05-15 22:41:58.588357
+5,Charles Garrett,bailey48@example.net,referral,facebook,2025-02-15 22:41:58.588493,Students,2025-02-15 22:41:58.588493
+6,James Nguyen,qpace@example.com,organic,facebook,2024-12-28 22:41:58.588592,Parents,2024-12-28 22:41:58.588592
+7,Laura Simmons,hsanchez@example.net,paid_ad,facebook,2025-03-15 22:41:58.588697,Students,2025-03-15 22:41:58.588697
+8,Dr. Jesse Wright,bbaldwin@example.net,organic,facebook,2025-03-21 22:41:58.588804,Retired,2025-03-21 22:41:58.588804
+9,Kimberly Cherry,suzannepace@example.com,paid_ad,google_ads,2025-02-08 22:41:58.588916,Working Professionals,2025-02-08 22:41:58.588916
+10,John Watts,theresa74@example.com,organic,influencer,2025-03-06 22:41:58.589048,Parents,2025-03-06 22:41:58.589048
+11,William Duarte,matthew83@example.com,referral,google_ads,2025-05-07 22:41:58.589144,Working Professionals,2025-05-07 22:41:58.589144
+12,David Tran,apaul@example.com,organic,facebook,2025-04-10 22:41:58.589241,Parents,2025-04-10 22:41:58.589241
+13,Rebecca Hernandez,jeffreywright@example.net,referral,facebook,2025-04-17 22:41:58.589388,Students,2025-04-17 22:41:58.589388
+14,Jacob Hunt,folsen@example.com,organic,influencer,2025-01-26 22:41:58.589537,Students,2025-01-26 22:41:58.589537
+15,Trevor Knapp,browningdanny@example.net,referral,google_ads,2025-05-18 22:41:58.589644,Retired,2025-05-18 22:41:58.589644
+16,Melissa Mills,linda88@example.org,paid_ad,facebook,2025-02-22 22:41:58.589775,Retired,2025-02-22 22:41:58.589775
+17,Stephanie Patterson,charles63@example.com,organic,influencer,2025-03-29 22:41:58.589873,Students,2025-03-29 22:41:58.589873
+18,Jennifer Roberts,joy44@example.org,organic,google_ads,2025-02-03 22:41:58.589973,Working Professionals,2025-02-03 22:41:58.589973
+19,Cory Escobar,phaynes@example.com,referral,google_ads,2025-04-09 22:41:58.590071,Parents,2025-04-09 22:41:58.590071
+20,Rachel Hudson,abigailconway@example.org,paid_ad,facebook,2025-02-07 22:41:58.590175,Working Professionals,2025-02-07 22:41:58.590175
+21,Maria Mason,mitchellamanda@example.com,paid_ad,google_ads,2025-03-24 22:41:58.590307,Retired,2025-03-24 22:41:58.590307
+22,Kimberly Colon DDS,wendyjennings@example.net,referral,facebook,2025-01-30 22:41:58.590435,Parents,2025-01-30 22:41:58.590435
+23,Chase Collins,lewisamber@example.org,organic,facebook,2024-12-29 22:41:58.590566,Working Professionals,2024-12-29 22:41:58.590566
+24,Bridget Anderson,andrewhernandez@example.org,referral,google_ads,2025-04-24 22:41:58.590690,Working Professionals,2025-04-24 22:41:58.590690
+25,Jennifer Drake,peter00@example.com,paid_ad,google_ads,2025-05-17 22:41:58.590817,Students,2025-05-17 22:41:58.590817
+26,Miss Jane Valdez,melissaking@example.com,referral,influencer,2025-03-12 22:41:58.590928,Working Professionals,2025-03-12 22:41:58.590928
+27,Charles Stark,daniel71@example.com,referral,influencer,2025-02-12 22:41:58.591063,Parents,2025-02-12 22:41:58.591063
+28,Joshua Bennett,brownmeredith@example.org,organic,google_ads,2025-04-09 22:41:58.591159,Students,2025-04-09 22:41:58.591159
+29,Timothy Klein,amyhowe@example.net,organic,influencer,2025-05-08 22:41:58.591290,Working Professionals,2025-05-08 22:41:58.591290
+30,Brian Kane,ngross@example.net,referral,google_ads,2025-05-17 22:41:58.591417,Working Professionals,2025-05-17 22:41:58.591417
+31,Edwin Gross,angelataylor@example.com,referral,influencer,2025-03-12 22:41:58.591520,Working Professionals,2025-03-12 22:41:58.591520
+32,Jonathan Martin,julia61@example.com,paid_ad,influencer,2025-03-30 22:41:58.591649,Working Professionals,2025-03-30 22:41:58.591649
+33,Amanda Washington,sarah71@example.com,organic,influencer,2025-01-19 22:41:58.591745,Students,2025-01-19 22:41:58.591745
+34,Brandon English,esullivan@example.net,organic,google_ads,2025-01-22 22:41:58.591846,Parents,2025-01-22 22:41:58.591846
+35,Sophia Hobbs,phillipsjohn@example.net,organic,google_ads,2025-01-06 22:41:58.591951,Working Professionals,2025-01-06 22:41:58.591951
+36,David Foster,uwerner@example.net,referral,google_ads,2025-04-06 22:41:58.592080,Working Professionals,2025-04-06 22:41:58.592080
+37,Matthew Ross,ocarlson@example.org,paid_ad,google_ads,2025-01-21 22:41:58.592182,Students,2025-01-21 22:41:58.592182
+38,Kelly Clark,colemanjustin@example.org,paid_ad,influencer,2025-02-25 22:41:58.592295,Retired,2025-02-25 22:41:58.592295
+39,Faith Jackson,nharrison@example.net,organic,influencer,2025-04-11 22:41:58.592433,Working Professionals,2025-04-11 22:41:58.592433
+40,Bryan Clarke,pricejohn@example.net,paid_ad,influencer,2025-01-12 22:41:58.592543,Retired,2025-01-12 22:41:58.592543
+41,Jessica Lopez,robinsonkelsey@example.com,referral,facebook,2025-01-07 22:41:58.592741,Students,2025-01-07 22:41:58.592741
+42,Tammy Lee,michelle63@example.net,referral,google_ads,2025-04-15 22:41:58.592923,Retired,2025-04-15 22:41:58.592923
+43,Ryan Parks,jmoon@example.com,referral,influencer,2025-01-24 22:41:58.593085,Retired,2025-01-24 22:41:58.593085
+44,Elizabeth Martin,thomas06@example.org,paid_ad,influencer,2025-05-18 22:41:58.593277,Working Professionals,2025-05-18 22:41:58.593277
+45,Jerry Young,jwilson@example.net,referral,google_ads,2025-05-02 22:41:58.593450,Students,2025-05-02 22:41:58.593450
+46,Christopher Lewis,scottjane@example.com,paid_ad,facebook,2025-03-09 22:41:58.593615,Parents,2025-03-09 22:41:58.593615
+47,Robert Carson,jessicachambers@example.com,paid_ad,facebook,2025-05-17 22:41:58.593851,Students,2025-05-17 22:41:58.593851
+48,Adam Rojas,josebradley@example.net,referral,influencer,2025-03-10 22:41:58.594107,Students,2025-03-10 22:41:58.594107
+49,Darren Schultz,patricia28@example.net,referral,facebook,2025-02-01 22:41:58.594360,Parents,2025-02-01 22:41:58.594360
+50,Summer Fuller,john92@example.org,paid_ad,facebook,2025-01-01 22:41:58.594535,Working Professionals,2025-01-01 22:41:58.594535
+51,Katherine Perez,fmiller@example.org,organic,influencer,2025-01-10 22:41:58.594711,Students,2025-01-10 22:41:58.594711
+52,David Gibson,josephjeff@example.com,paid_ad,google_ads,2025-03-16 22:41:58.594880,Students,2025-03-16 22:41:58.594880
+53,Alexandra Ruiz,colemanrhonda@example.org,paid_ad,facebook,2025-03-19 22:41:58.595091,Students,2025-03-19 22:41:58.595091
+54,Sheila Thompson,nmckinney@example.net,paid_ad,google_ads,2025-02-18 22:41:58.595312,Parents,2025-02-18 22:41:58.595312
+55,Lisa Douglas,kristen61@example.net,paid_ad,google_ads,2025-01-08 22:41:58.595489,Parents,2025-01-08 22:41:58.595489
+56,Shelby Pearson,logan47@example.com,paid_ad,facebook,2025-03-12 22:41:58.595642,Students,2025-03-12 22:41:58.595642
+57,Brittany Lewis,upoole@example.org,referral,influencer,2025-02-10 22:41:58.595825,Parents,2025-02-10 22:41:58.595825
+58,Carl Ortiz,tcannon@example.net,organic,influencer,2025-03-26 22:41:58.596023,Students,2025-03-26 22:41:58.596023
+59,Ann Jimenez,amberadkins@example.com,paid_ad,google_ads,2024-11-26 22:41:58.596213,Working Professionals,2024-11-26 22:41:58.596213
+60,Christopher White,psharp@example.org,paid_ad,influencer,2024-12-11 22:41:58.596455,Retired,2024-12-11 22:41:58.596455
+61,Karen Holloway,noblejordan@example.com,organic,influencer,2025-01-15 22:41:58.596643,Students,2025-01-15 22:41:58.596643
+62,Katherine Hunt,jeremytrujillo@example.org,paid_ad,google_ads,2024-12-05 22:41:58.596885,Students,2024-12-05 22:41:58.596885
+63,Alexandra James,carrollsydney@example.net,organic,facebook,2025-05-11 22:41:58.597142,Retired,2025-05-11 22:41:58.597142
+64,Colleen Chen,ryannguyen@example.org,referral,influencer,2025-01-08 22:41:58.597402,Retired,2025-01-08 22:41:58.597402
+65,Terri Nguyen,christian39@example.net,referral,facebook,2025-02-05 22:41:58.597644,Parents,2025-02-05 22:41:58.597644
+66,Nicholas Powell,millerandrew@example.net,referral,influencer,2025-04-27 22:41:58.597809,Working Professionals,2025-04-27 22:41:58.597809
+67,Carolyn Long,samuel51@example.net,organic,facebook,2025-03-30 22:41:58.598028,Parents,2025-03-30 22:41:58.598028
+68,Nicholas Howard V,andersoncharlene@example.com,referral,google_ads,2025-01-28 22:41:58.598196,Working Professionals,2025-01-28 22:41:58.598196
+69,Carl Delgado,youngdanielle@example.com,organic,google_ads,2025-01-26 22:41:58.598403,Working Professionals,2025-01-26 22:41:58.598403
+70,James Williams,ebranch@example.com,referral,influencer,2024-12-01 22:41:58.598543,Working Professionals,2024-12-01 22:41:58.598543
+71,Sarah Murphy,deleonrobert@example.com,referral,google_ads,2024-12-12 22:41:58.598657,Retired,2024-12-12 22:41:58.598657
+72,Thomas Lopez,twalton@example.net,organic,influencer,2025-02-04 22:41:58.598812,Working Professionals,2025-02-04 22:41:58.598812
+73,David Howell,moorejessica@example.com,paid_ad,google_ads,2025-04-07 22:41:58.598928,Students,2025-04-07 22:41:58.598928
+74,Nicole Rangel,jefferyweaver@example.org,organic,facebook,2025-03-14 22:41:58.599153,Parents,2025-03-14 22:41:58.599153
+75,Brandi Hardin,rwade@example.net,referral,influencer,2025-04-24 22:41:58.599415,Retired,2025-04-24 22:41:58.599415
+76,Laura Cruz,pstein@example.net,paid_ad,google_ads,2024-12-27 22:41:58.599620,Students,2024-12-27 22:41:58.599620
+77,Marvin Gonzalez,jrivas@example.com,paid_ad,facebook,2024-12-07 22:41:58.599823,Students,2024-12-07 22:41:58.599823
+78,George Levine,lisacooper@example.net,organic,influencer,2025-02-05 22:41:58.600027,Parents,2025-02-05 22:41:58.600027
+79,Debra King,chasecole@example.org,referral,influencer,2025-05-02 22:41:58.600282,Parents,2025-05-02 22:41:58.600282
+80,Tina Wells,johnsonbrian@example.com,paid_ad,influencer,2025-03-10 22:41:58.600533,Working Professionals,2025-03-10 22:41:58.600533
+81,Kimberly Wilson MD,laurie56@example.com,referral,facebook,2025-01-09 22:41:58.600784,Working Professionals,2025-01-09 22:41:58.600784
+82,Cheryl Beasley,grantwilliam@example.org,paid_ad,facebook,2025-05-14 22:41:58.600979,Students,2025-05-14 22:41:58.600979
+83,Mary Robinson,katherine76@example.com,referral,influencer,2024-12-21 22:41:58.601233,Retired,2024-12-21 22:41:58.601233
+84,Alexandra Moore,katherine91@example.net,referral,google_ads,2025-01-31 22:41:58.601415,Parents,2025-01-31 22:41:58.601415
+85,Steven Jackson,qporter@example.org,paid_ad,facebook,2025-05-12 22:41:58.601598,Parents,2025-05-12 22:41:58.601598
+86,Dale Cochran,yhowell@example.org,paid_ad,facebook,2025-04-09 22:41:58.601797,Working Professionals,2025-04-09 22:41:58.601797
+87,Amanda Walter,dmathews@example.net,organic,influencer,2025-04-09 22:41:58.601991,Retired,2025-04-09 22:41:58.601991
+88,Ronald Baxter,castilloruth@example.net,referral,influencer,2025-01-27 22:41:58.602187,Retired,2025-01-27 22:41:58.602187
+89,Susan Williams,adamskaylee@example.org,referral,google_ads,2025-01-16 22:41:58.602431,Parents,2025-01-16 22:41:58.602431
+90,Melvin Williams,suttonmatthew@example.net,referral,facebook,2024-12-09 22:41:58.602676,Parents,2024-12-09 22:41:58.602676
+91,Anna Carr,briggsjared@example.com,organic,influencer,2025-05-01 22:41:58.602919,Working Professionals,2025-05-01 22:41:58.602919
+92,Edwin Olson,reedtimothy@example.net,referral,facebook,2025-05-13 22:41:58.603163,Students,2025-05-13 22:41:58.603163
+93,Angela Johnson,crawforddawn@example.com,paid_ad,facebook,2024-12-12 22:41:58.603408,Students,2024-12-12 22:41:58.603408
+94,Steven Graham,kpowers@example.com,paid_ad,influencer,2025-04-08 22:41:58.603654,Students,2025-04-08 22:41:58.603654
+95,Paige Knight,riveraalicia@example.org,paid_ad,google_ads,2025-04-11 22:41:58.603847,Parents,2025-04-11 22:41:58.603847
+96,Diane Lynch,aflores@example.org,organic,influencer,2025-03-13 22:41:58.604088,Students,2025-03-13 22:41:58.604088
+97,Zachary Carter,edwardrush@example.net,organic,google_ads,2025-04-11 22:41:58.604290,Students,2025-04-11 22:41:58.604290
+98,Anna Rodriguez,fjohnson@example.org,paid_ad,influencer,2025-03-20 22:41:58.604525,Retired,2025-03-20 22:41:58.604525
+99,Chad Wolf,kathy97@example.org,paid_ad,facebook,2025-04-21 22:41:58.604723,Parents,2025-04-21 22:41:58.604723
+100,Kevin Schmidt,richard08@example.com,organic,facebook,2025-04-03 22:41:58.604898,Students,2025-04-03 22:41:58.604898
+101,Laura Tran,michaelschneider@example.org,organic,facebook,2025-04-20 22:41:58.605073,Parents,2025-04-20 22:41:58.605073
+102,Ashley Garcia,uelliott@example.com,paid_ad,influencer,2025-05-16 22:41:58.605317,Retired,2025-05-16 22:41:58.605317
+103,Andre Berger,lisa18@example.com,paid_ad,influencer,2025-02-18 22:41:58.605515,Parents,2025-02-18 22:41:58.605515
+104,Jonathan Romero,cheyenne28@example.com,organic,facebook,2025-04-14 22:41:58.605691,Working Professionals,2025-04-14 22:41:58.605691
+105,Stephanie Tanner,wjenkins@example.net,referral,google_ads,2025-01-25 22:41:58.605864,Working Professionals,2025-01-25 22:41:58.605864
+106,Joshua Robinson,chrisnichols@example.org,paid_ad,google_ads,2025-02-22 22:41:58.606054,Students,2025-02-22 22:41:58.606054
+107,Johnny Kennedy,brittney96@example.com,paid_ad,influencer,2025-02-14 22:41:58.606288,Working Professionals,2025-02-14 22:41:58.606288
+108,Angela Rodriguez,wcalderon@example.net,paid_ad,google_ads,2024-12-14 22:41:58.606460,Working Professionals,2024-12-14 22:41:58.606460
+109,Cynthia Jacobs,mwilliams@example.net,referral,google_ads,2025-05-02 22:41:58.606649,Students,2025-05-02 22:41:58.606649
+110,Christina Woods,morgandana@example.net,paid_ad,facebook,2025-04-28 22:41:58.606845,Working Professionals,2025-04-28 22:41:58.606845
+111,Anthony Gomez,keith89@example.net,paid_ad,facebook,2025-01-15 22:41:58.607091,Parents,2025-01-15 22:41:58.607091
+112,Danielle Burnett,ikennedy@example.org,paid_ad,google_ads,2024-12-21 22:41:58.607267,Students,2024-12-21 22:41:58.607267
+113,Stephanie Anderson,victoriageorge@example.net,paid_ad,facebook,2025-05-04 22:41:58.607467,Retired,2025-05-04 22:41:58.607467
+114,Jeremy Avila,thomas33@example.org,paid_ad,facebook,2025-04-19 22:41:58.607710,Retired,2025-04-19 22:41:58.607710
+115,Nathan Castro,swilkinson@example.net,organic,facebook,2025-02-27 22:41:58.607883,Working Professionals,2025-02-27 22:41:58.607883
+116,Scott Allen,mgreer@example.net,organic,google_ads,2024-12-09 22:41:58.608075,Retired,2024-12-09 22:41:58.608075
+117,Leslie Martin,darrelljones@example.com,organic,influencer,2025-01-19 22:41:58.608266,Parents,2025-01-19 22:41:58.608266
+118,Wayne Lindsey,margarettaylor@example.org,paid_ad,google_ads,2025-04-21 22:41:58.608508,Students,2025-04-21 22:41:58.608508
+119,Michelle Jones,antoniofrederick@example.com,referral,google_ads,2024-12-19 22:41:58.608748,Working Professionals,2024-12-19 22:41:58.608748
+120,Sally Graham,chasejoseph@example.com,referral,facebook,2025-03-31 22:41:58.608990,Parents,2025-03-31 22:41:58.608990
+121,Monica Edwards,icasey@example.net,paid_ad,google_ads,2024-11-24 22:41:58.609232,Students,2024-11-24 22:41:58.609232
+122,Jennifer Ball,beverly24@example.com,organic,influencer,2025-02-03 22:41:58.609429,Working Professionals,2025-02-03 22:41:58.609429
+123,Adam Ortiz,dvalenzuela@example.net,paid_ad,influencer,2025-05-17 22:41:58.609610,Parents,2025-05-17 22:41:58.609610
+124,Curtis Hansen MD,qsmith@example.com,paid_ad,google_ads,2025-03-12 22:41:58.609799,Students,2025-03-12 22:41:58.609799
+125,Lisa Gross,jose89@example.org,organic,facebook,2025-04-17 22:41:58.609997,Parents,2025-04-17 22:41:58.609997
+126,Karla Odonnell,gwendolyn48@example.net,referral,facebook,2025-05-14 22:41:58.610171,Students,2025-05-14 22:41:58.610171
+127,Kathleen Elliott,bobbyjoseph@example.org,organic,influencer,2024-12-08 22:41:58.610352,Retired,2024-12-08 22:41:58.610352
+128,Don Fernandez,morgankevin@example.com,organic,influencer,2025-01-10 22:41:58.610594,Working Professionals,2025-01-10 22:41:58.610594
+129,Derrick Wilson,iadams@example.net,referral,influencer,2025-03-28 22:41:58.610830,Retired,2025-03-28 22:41:58.610830
+130,Donald Bernard,duncannatasha@example.com,paid_ad,facebook,2025-01-04 22:41:58.611020,Working Professionals,2025-01-04 22:41:58.611020
+131,Deborah Mckinney,rbowen@example.net,organic,google_ads,2025-01-10 22:41:58.611261,Retired,2025-01-10 22:41:58.611261
+132,Timothy Short,brandon60@example.org,organic,google_ads,2025-02-22 22:41:58.611458,Retired,2025-02-22 22:41:58.611458
+133,Caleb Turner,olewis@example.org,organic,facebook,2025-03-30 22:41:58.611632,Retired,2025-03-30 22:41:58.611632
+134,Jamie Hester,millerjustin@example.net,paid_ad,google_ads,2025-05-08 22:41:58.611824,Parents,2025-05-08 22:41:58.611824
+135,Leah Mitchell,psexton@example.net,referral,influencer,2025-03-13 22:41:58.612069,Working Professionals,2025-03-13 22:41:58.612069
+136,Raymond Murray,bali@example.com,organic,google_ads,2024-12-07 22:41:58.612266,Working Professionals,2024-12-07 22:41:58.612266
+137,Pamela Valencia,irivas@example.org,organic,influencer,2024-12-28 22:41:58.612458,Retired,2024-12-28 22:41:58.612458
+138,Lisa Mccullough,tjones@example.com,referral,influencer,2025-05-12 22:41:58.612652,Retired,2025-05-12 22:41:58.612652
+139,William Wright,wallacemark@example.org,organic,facebook,2024-11-29 22:41:58.612850,Parents,2024-11-29 22:41:58.612850
+140,Philip Morris,burnettbradley@example.com,referral,google_ads,2025-02-25 22:41:58.613094,Parents,2025-02-25 22:41:58.613094
+141,Melissa White,wadenancy@example.net,paid_ad,google_ads,2025-01-02 22:41:58.613341,Retired,2025-01-02 22:41:58.613341
+142,Angela Johnson,kristinmckay@example.org,paid_ad,facebook,2024-12-08 22:41:58.613579,Students,2024-12-08 22:41:58.613579
+143,Peggy Conner,cwallace@example.com,paid_ad,google_ads,2025-05-11 22:41:58.613726,Parents,2025-05-11 22:41:58.613726
+144,Nathan Spencer,eric73@example.org,referral,google_ads,2025-03-28 22:41:58.613841,Parents,2025-03-28 22:41:58.613841
+145,John Sandoval,sarahjohnson@example.org,referral,facebook,2024-12-12 22:41:58.613944,Parents,2024-12-12 22:41:58.613944
+146,Michael Lynch,nicholsdebra@example.org,referral,google_ads,2024-11-29 22:41:58.614109,Parents,2024-11-29 22:41:58.614109
+147,James Clark,ttodd@example.org,organic,influencer,2024-12-06 22:41:58.614275,Retired,2024-12-06 22:41:58.614275
+148,Richard Brown,ntorres@example.net,paid_ad,influencer,2025-03-06 22:41:58.614394,Working Professionals,2025-03-06 22:41:58.614394
+149,John Dunn,sandrakennedy@example.org,referral,influencer,2025-03-20 22:41:58.614512,Students,2025-03-20 22:41:58.614512
+150,Gregory Butler,maryferrell@example.org,organic,influencer,2024-12-31 22:41:58.614658,Parents,2024-12-31 22:41:58.614658
+151,Scott Holt,mike29@example.com,paid_ad,influencer,2025-03-17 22:41:58.614877,Working Professionals,2025-03-17 22:41:58.614877
+152,Michael Hall,hicksrobert@example.org,paid_ad,facebook,2025-05-10 22:41:58.615078,Parents,2025-05-10 22:41:58.615078
+153,Megan Richardson,andersonmark@example.com,referral,influencer,2024-12-18 22:41:58.615328,Students,2024-12-18 22:41:58.615328
+154,Nicole Myers,mariosanchez@example.org,referral,facebook,2025-04-18 22:41:58.615580,Retired,2025-04-18 22:41:58.615580
+155,Catherine Dixon,karensanchez@example.com,organic,influencer,2025-02-24 22:41:58.615829,Parents,2025-02-24 22:41:58.615829
+156,Michael Rodriguez,nguyentyler@example.org,paid_ad,google_ads,2025-02-09 22:41:58.616072,Working Professionals,2025-02-09 22:41:58.616072
+157,Patrick Frost,timothymyers@example.org,organic,influencer,2024-11-27 22:41:58.616327,Retired,2024-11-27 22:41:58.616327
+158,Richard Williams,alexander72@example.com,organic,google_ads,2025-02-18 22:41:58.616582,Students,2025-02-18 22:41:58.616582
+159,Kaitlyn Rosario,paulabanks@example.com,paid_ad,google_ads,2025-03-28 22:41:58.616768,Working Professionals,2025-03-28 22:41:58.616768
+160,Randy Lewis,mccoysean@example.org,referral,google_ads,2025-03-29 22:41:58.617018,Retired,2025-03-29 22:41:58.617018
+161,Dennis Ellison,amberhaynes@example.net,organic,influencer,2024-12-26 22:41:58.617269,Parents,2024-12-26 22:41:58.617269
+162,Peter Ellis,scott40@example.com,referral,facebook,2025-04-11 22:41:58.617514,Students,2025-04-11 22:41:58.617514
+163,Matthew Harris,penningtonbenjamin@example.net,paid_ad,influencer,2025-02-05 22:41:58.617693,Students,2025-02-05 22:41:58.617693
+164,Mary Lee,mariagonzales@example.org,referral,google_ads,2025-05-07 22:41:58.617938,Retired,2025-05-07 22:41:58.617938
+165,Catherine Barnett,allisonromero@example.com,organic,influencer,2025-01-10 22:41:58.618187,Working Professionals,2025-01-10 22:41:58.618187
+166,Matthew Ferguson,bbowman@example.net,organic,influencer,2025-05-17 22:41:58.618447,Parents,2025-05-17 22:41:58.618447
+167,Robin Bird,nicholsfrancis@example.org,paid_ad,facebook,2025-01-13 22:41:58.618640,Retired,2025-01-13 22:41:58.618640
+168,Peter Anderson,tanyabean@example.org,organic,facebook,2024-12-13 22:41:58.618883,Working Professionals,2024-12-13 22:41:58.618883
+169,Kelly Smith,pachecojeffery@example.org,organic,google_ads,2025-01-10 22:41:58.619102,Working Professionals,2025-01-10 22:41:58.619102
+170,Meghan Bailey,jonathan09@example.com,organic,influencer,2025-04-06 22:41:58.619270,Parents,2025-04-06 22:41:58.619270
+171,Brandon Bonilla,dhebert@example.net,organic,google_ads,2024-12-13 22:41:58.619380,Working Professionals,2024-12-13 22:41:58.619380
+172,Kevin Montes,robinware@example.com,organic,influencer,2025-04-23 22:41:58.619495,Working Professionals,2025-04-23 22:41:58.619495
+173,Mary Vincent,chester@example.com,organic,influencer,2024-12-17 22:41:58.619633,Retired,2024-12-17 22:41:58.619633
+174,Kevin Neal,kwiggins@example.com,referral,influencer,2024-12-29 22:41:58.619748,Parents,2024-12-29 22:41:58.619748
+175,Scott Garcia,timothy83@example.com,referral,google_ads,2025-02-23 22:41:58.619861,Parents,2025-02-23 22:41:58.619861
+176,Nicholas Rodriguez,josephpadilla@example.net,referral,facebook,2025-01-21 22:41:58.619963,Retired,2025-01-21 22:41:58.619963
+177,Miranda Smith,jamesalexander@example.org,paid_ad,google_ads,2025-02-03 22:41:58.620107,Students,2025-02-03 22:41:58.620107
+178,Gary Dougherty,gregoryharris@example.org,referral,google_ads,2025-05-14 22:41:58.620250,Retired,2025-05-14 22:41:58.620250
+179,Tammy Strong,christy05@example.org,organic,google_ads,2025-03-10 22:41:58.620394,Retired,2025-03-10 22:41:58.620394
+180,Jeffrey Rogers,tatejennifer@example.net,referral,facebook,2024-12-11 22:41:58.620498,Parents,2024-12-11 22:41:58.620498
+181,Brian Chang,stacy60@example.com,referral,google_ads,2025-04-08 22:41:58.620637,Working Professionals,2025-04-08 22:41:58.620637
+182,Kimberly Bailey,julie46@example.org,paid_ad,influencer,2025-03-30 22:41:58.620738,Retired,2025-03-30 22:41:58.620738
+183,Anna Knight,christopherrodriguez@example.net,paid_ad,facebook,2025-04-02 22:41:58.620842,Retired,2025-04-02 22:41:58.620842
+184,Kayla Johnson,christopher31@example.com,referral,influencer,2025-04-29 22:41:58.620983,Parents,2025-04-29 22:41:58.620983
+185,Samuel Johnson,stanleymartin@example.com,paid_ad,facebook,2025-03-26 22:41:58.621087,Working Professionals,2025-03-26 22:41:58.621087
+186,Karl Santiago,reneebanks@example.net,organic,facebook,2024-12-17 22:41:58.621225,Parents,2024-12-17 22:41:58.621225
+187,Mason Terrell,sarah98@example.org,organic,google_ads,2025-04-17 22:41:58.621369,Retired,2025-04-17 22:41:58.621369
+188,Jeremy Jones,ericanichols@example.com,referral,facebook,2025-05-02 22:41:58.621472,Students,2025-05-02 22:41:58.621472
+189,Mary Cole,rachelwoods@example.org,referral,facebook,2025-04-06 22:41:58.621609,Students,2025-04-06 22:41:58.621609
+190,Angela Farrell,tina14@example.com,organic,google_ads,2025-04-07 22:41:58.621750,Parents,2025-04-07 22:41:58.621750
+191,Timothy Campbell,susan23@example.com,organic,facebook,2024-12-18 22:41:58.621852,Parents,2024-12-18 22:41:58.621852
+192,Jeffrey Carlson,martinjennifer@example.net,organic,facebook,2025-02-18 22:41:58.621953,Working Professionals,2025-02-18 22:41:58.621953
+193,Alexandra Winters,anna27@example.com,referral,google_ads,2025-04-07 22:41:58.622090,Retired,2025-04-07 22:41:58.622090
+194,Ryan Ramirez DDS,fisheralexander@example.com,referral,google_ads,2025-04-11 22:41:58.622193,Parents,2025-04-11 22:41:58.622193
+195,April Smith,natalie25@example.com,referral,google_ads,2025-01-19 22:41:58.622340,Retired,2025-01-19 22:41:58.622340
+196,Jose Watson,aharris@example.org,organic,influencer,2025-02-15 22:41:58.622444,Students,2025-02-15 22:41:58.622444
+197,Stacey Thomas,lgomez@example.com,referral,google_ads,2025-02-14 22:41:58.622556,Parents,2025-02-14 22:41:58.622556
+198,Christopher Yoder,keithwilcox@example.com,referral,google_ads,2025-03-20 22:41:58.622730,Parents,2025-03-20 22:41:58.622730
+199,James Adams,bestalex@example.org,referral,facebook,2025-01-03 22:41:58.622899,Students,2025-01-03 22:41:58.622899
+200,Kevin Hoover,dcook@example.net,organic,facebook,2025-02-27 22:41:58.623038,Parents,2025-02-27 22:41:58.623038

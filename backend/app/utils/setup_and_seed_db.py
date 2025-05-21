@@ -11,21 +11,22 @@ from pathlib import Path
 # Load environment variables
 load_dotenv()
 
-# Database URL
+# DB URL from .env or fallback
 DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql://postgres:password@localhost:5432/chipchip"
 
-# Setup SQLAlchemy
+# SQLAlchemy setup
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
-# Data folder for CSVs
+# Data folder path
 DATA_DIR = Path("backend/data")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 fake = Faker()
 
-# Table Models
+# --- Table Models ---
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -60,18 +61,11 @@ class OrderItem(Base):
     product_id = Column(Integer, ForeignKey("products.id"))
     quantity = Column(Integer)
 
-# ❌ Drop and ✅ Recreate tables
-def reset_database():
-    print("⚠️ Dropping existing tables...")
-    Base.metadata.drop_all(engine)
-    print("✅ Tables dropped.")
+# --- Seeder Function ---
 
-    print("🛠️ Recreating tables...")
-    Base.metadata.create_all(engine)
-    print("✅ Tables recreated.")
-
-# 🚀 Seed fake data into the tables
 def seed_database():
+    Base.metadata.drop_all(engine)  # 🚨 Optional: Drop tables if needed
+    Base.metadata.create_all(engine)
     session = SessionLocal()
 
     if session.query(User).first():
@@ -81,28 +75,44 @@ def seed_database():
 
     print("🚀 Seeding data...")
 
+    # USERS
     channels = ['organic', 'referral', 'paid_ad']
     users = [User(name=fake.name(), email=fake.unique.email(), channel=fake.random_element(channels)) for _ in range(50)]
     session.add_all(users)
     session.commit()
 
+    # GROUP LEADERS
     group_leaders = [GroupLeader(user_id=u.id) for u in users[:10]]
     session.add_all(group_leaders)
     session.commit()
 
+    # PRODUCTS
     categories = ['vegetable', 'fruit', 'grain']
-    products = [Product(name=fake.word(), category=fake.random_element(categories), price=round(fake.pyfloat(left_digits=2, right_digits=2, positive=True), 2)) for _ in range(20)]
+    products = [
+        Product(
+            name=fake.word(),
+            category=fake.random_element(categories),
+            price=round(fake.pyfloat(left_digits=2, right_digits=2, positive=True), 2)
+        )
+        for _ in range(20)
+    ]
     session.add_all(products)
     session.commit()
 
+    # ORDERS
     orders = []
     for _ in range(100):
         user = fake.random_element(users)
         leader = fake.random_element(group_leaders)
-        orders.append(Order(user_id=user.id, group_leader_id=leader.id, timestamp=fake.date_time_between(start_date='-30d', end_date='now')))
+        orders.append(Order(
+            user_id=user.id,
+            group_leader_id=leader.id,
+            timestamp=fake.date_time_between(start_date='-30d', end_date='now')
+        ))
     session.add_all(orders)
     session.commit()
 
+    # ORDER ITEMS
     order_items = []
     for order in orders:
         for _ in range(fake.random_int(min=1, max=3)):
@@ -112,7 +122,7 @@ def seed_database():
     session.add_all(order_items)
     session.commit()
 
-    # Save to CSV
+    # CSV Exports
     pd.DataFrame([u.__dict__ for u in users]).drop('_sa_instance_state', axis=1).to_csv(DATA_DIR / 'users.csv', index=False)
     pd.DataFrame([gl.__dict__ for gl in group_leaders]).drop('_sa_instance_state', axis=1).to_csv(DATA_DIR / 'group_leaders.csv', index=False)
     pd.DataFrame([p.__dict__ for p in products]).drop('_sa_instance_state', axis=1).to_csv(DATA_DIR / 'products.csv', index=False)
@@ -122,10 +132,6 @@ def seed_database():
     print("✅ Seeding complete. CSVs saved.")
     session.close()
 
-# Entry point
+# --- Run directly ---
 if __name__ == "__main__":
-    RESET_DB = True  # Set to True to drop & recreate, False to skip
-    if RESET_DB:
-        reset_database()
-
     seed_database()

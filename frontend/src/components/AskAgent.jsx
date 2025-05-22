@@ -20,10 +20,6 @@ const AskAgent = () => {
   const [examples, setExamples] = useState([]);
   const [loading, setLoading] = useState(false);
   const [useMemory, setUseMemory] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [lastInteraction, setLastInteraction] = useState(null);
-  const [feedbackRating, setFeedbackRating] = useState(5);
-  const [feedbackComment, setFeedbackComment] = useState("");
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -71,8 +67,6 @@ const AskAgent = () => {
       const data = await res.json();
       const botMsg = { sender: "bot", text: data.answer, timestamp: new Date().toLocaleTimeString() };
       setMessages((prev) => [...prev, botMsg]);
-      setLastInteraction({ question, answer: data.answer });
-      setShowFeedback(true);
     } catch {
       setMessages((prev) => [...prev, {
         sender: "bot",
@@ -94,29 +88,6 @@ const AskAgent = () => {
   const startNewChat = () => {
     setMessages([]);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
-  };
-
-  const submitFeedback = async () => {
-    if (!lastInteraction) return;
-
-    try {
-      await fetch(`${BACKEND_URL}/feedback`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: lastInteraction.question,
-          answer: lastInteraction.answer,
-          rating: feedbackRating,
-          comment: feedbackComment
-        }),
-      });
-    } catch (err) {
-      console.error("Feedback submission failed");
-    }
-
-    setShowFeedback(false);
-    setFeedbackComment("");
-    setFeedbackRating(5);
   };
 
   return (
@@ -212,36 +183,6 @@ const AskAgent = () => {
           </div>
         </main>
       </div>
-
-      {/* Feedback Modal */}
-      {showFeedback && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md shadow-lg">
-            <h3 className="text-lg font-semibold mb-2">Rate this response</h3>
-            <label className="block text-sm mb-1">Rating (1-5):</label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              value={feedbackRating}
-              onChange={(e) => setFeedbackRating(Number(e.target.value))}
-              className="w-full p-2 border border-gray-300 rounded mb-3"
-            />
-            <label className="block text-sm mb-1">Comment (optional):</label>
-            <textarea
-              rows="3"
-              value={feedbackComment}
-              onChange={(e) => setFeedbackComment(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-
-            <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowFeedback(false)} className="text-gray-500 hover:underline text-sm">Cancel</button>
-              <button onClick={submitFeedback} className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">Submit</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>

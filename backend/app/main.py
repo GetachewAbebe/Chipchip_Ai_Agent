@@ -16,7 +16,6 @@ app.add_middleware(
 # ✅ Register routes
 app.include_router(ask.router)
 app.include_router(chat.router)
-#app.include_router(feedback.router)
 app.include_router(examples.router)
 app.include_router(logs.router)
 

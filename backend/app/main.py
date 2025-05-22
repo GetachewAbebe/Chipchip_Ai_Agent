@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import ask, examples, chat, feedback, logs
+from app.routes import ask, examples, chat, logs
 
 app = FastAPI(title="ChipChip AI Agent")
 
@@ -16,7 +16,7 @@ app.add_middleware(
 # ✅ Register routes
 app.include_router(ask.router)
 app.include_router(chat.router)
-app.include_router(feedback.router)
+#app.include_router(feedback.router)
 app.include_router(examples.router)
 app.include_router(logs.router)
 

@@ -68,7 +68,6 @@ const AskAgent = () => {
     });
   }, [messages]);
 
-  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       const ref = dropdownRefs.current[activeDropdownId];
@@ -177,7 +176,7 @@ const AskAgent = () => {
       <div className="flex flex-1 flex-col md:flex-row">
         {/* Left panel: Chat History */}
         <aside className="w-full md:w-1/4 bg-gray-100 p-4 md:p-6 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">🗂️ Chat History</h3>
+          <h3 className="text-lg font-semibold mb-4 text-center">🗂️ Chat History</h3>
           <ul className="space-y-2 text-sm">
             {chatHistory.map((chatItem) => (
               <li
@@ -186,10 +185,7 @@ const AskAgent = () => {
                   chatItem.id === currentChatId ? "bg-white font-bold" : ""
                 }`}
               >
-                <div
-                  className="cursor-pointer pr-6"
-                  onClick={() => loadChat(chatItem)}
-                >
+                <div className="cursor-pointer pr-6" onClick={() => loadChat(chatItem)}>
                   {chatItem.name}
                 </div>
 
@@ -205,29 +201,38 @@ const AskAgent = () => {
                   </button>
 
                   {activeDropdownId === chatItem.id && (
-                    <div
-                      ref={(el) => (dropdownRefs.current[chatItem.id] = el)}
-                      className="absolute right-0 mt-2 w-32 bg-white border rounded shadow text-xs transition-all duration-150 origin-top-right animate-fadeIn"
-                    >
-                      <button
-                        onClick={() => renameChat(chatItem.id)}
-                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                    <>
+                      {/* Overlay */}
+                      <div
+                        className="fixed inset-0 bg-black bg-opacity-40 z-40"
+                        onClick={() => setActiveDropdownId(null)}
+                      />
+
+                      {/* Dropdown above */}
+                      <div
+                        ref={(el) => (dropdownRefs.current[chatItem.id] = el)}
+                        className="absolute bottom-full right-0 mb-2 w-36 bg-white border rounded shadow z-50 transition-all animate-fadeIn"
                       >
-                        Rename
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(chatItem.id)}
-                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-red-500"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={() => downloadChat(chatItem)}
-                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                      >
-                        Download PDF
-                      </button>
-                    </div>
+                        <button
+                          onClick={() => renameChat(chatItem.id)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          Rename
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(chatItem.id)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-red-500"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => downloadChat(chatItem)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          Download PDF
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </li>

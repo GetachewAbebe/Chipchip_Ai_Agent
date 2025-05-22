@@ -1,4 +1,5 @@
 # app/agent/query_engine.py
+
 from typing import Optional, Dict, Any
 
 from langchain_core.language_models import BaseLanguageModel
@@ -7,10 +8,9 @@ from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 from langchain.agents.agent import AgentExecutor
+from langchain_openai import ChatOpenAI
 
-from langchain_openai import ChatOpenAI  # ✅ Add default LLM
 from sqlalchemy.exc import SQLAlchemyError
-
 from app.utils.database import engine
 from app.utils.logger import logger
 
@@ -20,9 +20,9 @@ class QueryEngine:
         db: Optional[SQLDatabase] = None,
         llm: Optional[BaseLanguageModel] = None
     ):
+        # Initialize database and language model
         self.db = db or SQLDatabase(engine)
         self.llm = llm or ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
-
         self.memory_sessions: Dict[str, ConversationBufferMemory] = {}
 
     def get_or_create_memory(self, session_id: str) -> ConversationBufferMemory:
@@ -60,20 +60,14 @@ class QueryEngine:
             logger.info(f"[QueryEngine] 🔎 Running query: '{question}' | session_id={session_id}")
             agent = self.create_agent(session_id, llm)
             response = agent.run(question)
-
             logger.info(f"[QueryEngine] ✅ Response: {response}")
-            return {
-                "answer": response
-                # Optionally add SQL here if toolkit returns it
-            }
-
+            return {"answer": response}
         except SQLAlchemyError as db_err:
             logger.error(f"[QueryEngine] ❌ SQLAlchemy error: {db_err}")
             return {"error": f"Database error: {db_err}"}
-
         except Exception as e:
             logger.error(f"[QueryEngine] 🔥 Unexpected error: {e}")
             return {"error": str(e)}
 
-# ✅ Export default instance
+# ✅ Singleton instance for route-level import
 default_query_engine = QueryEngine()

@@ -5,7 +5,6 @@ import Footer from "./Footer";
 import { v4 as uuidv4 } from "uuid";
 
 const BACKEND_URL = "https://chipchip-ai-agent-backend.onrender.com";
-
 const CHAT_HISTORY_KEY = "chipchip_chat_history";
 
 const TypingDots = () => (
@@ -24,7 +23,6 @@ const AskAgent = () => {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
-  // Load history from localStorage
   useEffect(() => {
     const saved = localStorage.getItem(CHAT_HISTORY_KEY);
     if (saved) {
@@ -36,12 +34,10 @@ const AskAgent = () => {
     }
   }, []);
 
-  // Scroll on new messages
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Save current chat to history when messages change
   useEffect(() => {
     if (messages.length === 0) return;
 
@@ -67,7 +63,7 @@ const AskAgent = () => {
     });
   }, [messages]);
 
-  const ask = async () => {
+  const chat = async () => {
     if (!question.trim()) return;
 
     const timestamp = new Date().toLocaleTimeString();
@@ -102,7 +98,7 @@ const AskAgent = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      ask();
+      chat();
     }
   };
 
@@ -112,36 +108,36 @@ const AskAgent = () => {
     setMessages([]);
   };
 
-  const loadChat = (chat) => {
-    setCurrentChatId(chat.id);
-    setMessages(chat.messages || []);
+  const loadChat = (chatItem) => {
+    setCurrentChatId(chatItem.id);
+    setMessages(chatItem.messages || []);
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Left panel: Chat History */}
-        <aside className="w-1/3 bg-gray-100 p-6 overflow-y-auto">
+        <aside className="w-full md:w-1/4 bg-gray-100 p-4 md:p-6 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200">
           <h3 className="text-lg font-semibold mb-4">🗂️ Chat History</h3>
           <ul className="space-y-2 text-sm">
-            {chatHistory.map((chat) => (
+            {chatHistory.map((chatItem) => (
               <li
-                key={chat.id}
-                onClick={() => loadChat(chat)}
+                key={chatItem.id}
+                onClick={() => loadChat(chatItem)}
                 className={`cursor-pointer px-2 py-1 rounded hover:bg-gray-200 ${
-                  chat.id === currentChatId ? "bg-white font-bold" : ""
+                  chatItem.id === currentChatId ? "bg-white font-bold" : ""
                 }`}
               >
-                {chat.name}
+                {chatItem.name}
               </li>
             ))}
           </ul>
         </aside>
 
         {/* Right panel: Chat */}
-        <main className="w-2/3 p-6 flex flex-col">
+        <main className="w-full md:w-3/4 p-4 md:p-6 flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">🧠 Chat</h2>
             <button
@@ -193,10 +189,10 @@ const AskAgent = () => {
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your question and press Enter"
-              className="w-full p-3 pr-10 border border-gray-300 rounded-xl resize-none text-sm shadow-sm"
+              className="w-full p-3 pr-10 border border-gray-300 rounded-xl resize-none text-base shadow-sm"
             />
             <IoPaperPlaneOutline
-              onClick={ask}
+              onClick={chat}
               className="absolute bottom-3 right-4 text-xl cursor-pointer text-red-600 hover:text-red-700"
               title="Send"
             />

@@ -1,26 +1,18 @@
 # app/agent/query_engine.py
-
 from typing import Optional, Dict, Any
-
-from langchain_core.language_models import BaseLanguageModel
+from langchain_openai import ChatOpenAI
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 from langchain.agents.agent import AgentExecutor
-from langchain_openai import ChatOpenAI
-
 from sqlalchemy.exc import SQLAlchemyError
+
 from app.utils.database import engine
 from app.utils.logger import logger
 
 class QueryEngine:
-    def __init__(
-        self,
-        db: Optional[SQLDatabase] = None,
-        llm: Optional[BaseLanguageModel] = None
-    ):
-        # Initialize database and language model
+    def __init__(self, db: Optional[SQLDatabase] = None, llm: Optional[ChatOpenAI] = None):
         self.db = db or SQLDatabase(engine)
         self.llm = llm or ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
         self.memory_sessions: Dict[str, ConversationBufferMemory] = {}
@@ -33,11 +25,7 @@ class QueryEngine:
             )
         return self.memory_sessions[session_id]
 
-    def create_agent(
-        self,
-        session_id: str,
-        llm: Optional[BaseLanguageModel] = None
-    ) -> AgentExecutor:
+    def create_agent(self, session_id: str, llm: Optional[ChatOpenAI] = None) -> AgentExecutor:
         current_llm = llm or self.llm
         toolkit = SQLDatabaseToolkit(db=self.db, llm=current_llm)
         memory = self.get_or_create_memory(session_id)
@@ -47,15 +35,11 @@ class QueryEngine:
             llm=current_llm,
             agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             memory=memory,
-            verbose=True
+            verbose=True,
+            handle_parsing_errors=True  # ✅ Important fix
         )
 
-    def run_query(
-        self,
-        question: str,
-        session_id: str,
-        llm: Optional[BaseLanguageModel] = None
-    ) -> Dict[str, Any]:
+    def run_query(self, question: str, session_id: str, llm: Optional[ChatOpenAI] = None) -> Dict[str, Any]:
         try:
             logger.info(f"[QueryEngine] 🔎 Running query: '{question}' | session_id={session_id}")
             agent = self.create_agent(session_id, llm)
@@ -63,11 +47,11 @@ class QueryEngine:
             logger.info(f"[QueryEngine] ✅ Response: {response}")
             return {"answer": response}
         except SQLAlchemyError as db_err:
-            logger.error(f"[QueryEngine] ❌ SQLAlchemy error: {db_err}")
+            logger.error(f"[QueryEngine] ❌ DB Error: {db_err}")
             return {"error": f"Database error: {db_err}"}
         except Exception as e:
-            logger.error(f"[QueryEngine] 🔥 Unexpected error: {e}")
+            logger.error(f"[QueryEngine] 🔥 Unexpected: {e}")
             return {"error": str(e)}
 
-# ✅ Singleton instance for route-level import
+# ✅ Export default instance
 default_query_engine = QueryEngine()

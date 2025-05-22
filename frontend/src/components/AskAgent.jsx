@@ -5,6 +5,7 @@ import Footer from "./Footer";
 
 const LOCAL_STORAGE_KEY = "chipchip_chat_memory";
 const BACKEND_URL = "https://chipchip-ai-agent-backend.onrender.com";
+const SESSION_ID = "frontend-user-session"; // you can also generate a uuid here if needed
 
 const TypingDots = () => (
   <div className="flex gap-1 items-center">
@@ -19,7 +20,6 @@ const AskAgent = () => {
   const [messages, setMessages] = useState([]);
   const [examples, setExamples] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [useMemory, setUseMemory] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -57,17 +57,17 @@ const AskAgent = () => {
     setLoading(true);
 
     try {
-      const endpoint = useMemory ? "/chat" : "/chat";
-      const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+      const res = await fetch(`${BACKEND_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, session_id: SESSION_ID }),
       });
 
       const data = await res.json();
       const botMsg = { sender: "bot", text: data.answer, timestamp: new Date().toLocaleTimeString() };
       setMessages((prev) => [...prev, botMsg]);
-    } catch {
+    } catch (err) {
+      console.error("❌ Chat fetch failed:", err);
       setMessages((prev) => [...prev, {
         sender: "bot",
         text: "⚠️ Sorry, something went wrong.",
@@ -95,7 +95,7 @@ const AskAgent = () => {
       <Header />
 
       <div className="flex flex-1">
-        {/* Left panel: Examples + toggle */}
+        {/* Left panel: Examples */}
         <aside className="w-1/3 bg-gray-100 p-6">
           <h3 className="text-lg font-semibold mb-4">💡 Sample Queries</h3>
           <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
@@ -105,17 +105,6 @@ const AskAgent = () => {
               </li>
             )) : <li>Loading examples...</li>}
           </ul>
-
-          <div className="mt-6">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={useMemory}
-                onChange={() => setUseMemory(!useMemory)}
-              />
-              Multi-turn memory
-            </label>
-          </div>
         </aside>
 
         {/* Right panel: Chat */}

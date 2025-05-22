@@ -3,6 +3,7 @@ import { IoPaperPlaneOutline } from "react-icons/io5";
 import Header from "./Header";
 import Footer from "./Footer";
 import { v4 as uuidv4 } from "uuid";
+import jsPDF from "jspdf";
 
 const BACKEND_URL = "https://chipchip-ai-agent-backend.onrender.com";
 const CHAT_HISTORY_KEY = "chipchip_chat_history";
@@ -50,6 +51,7 @@ const AskAgent = () => {
         id: currentChatId,
         name: name.length > 50 ? name.slice(0, 50) + "..." : name,
         messages,
+        showMenu: false,
       };
 
       if (index !== -1) {
@@ -113,6 +115,56 @@ const AskAgent = () => {
     setMessages(chatItem.messages || []);
   };
 
+  const toggleMenu = (chatId) => {
+    setChatHistory((prev) =>
+      prev.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, showMenu: !chat.showMenu }
+          : { ...chat, showMenu: false }
+      )
+    );
+  };
+
+  const renameChat = (chatId) => {
+    const newName = window.prompt("Enter new chat name:");
+    if (!newName) return;
+    const updated = chatHistory.map(chat =>
+      chat.id === chatId ? { ...chat, name: newName, showMenu: false } : chat
+    );
+    setChatHistory(updated);
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(updated));
+  };
+
+  const deleteChat = (chatId) => {
+    const filtered = chatHistory.filter(chat => chat.id !== chatId);
+    setChatHistory(filtered);
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(filtered));
+    if (chatId === currentChatId) {
+      startNewChat();
+    }
+  };
+
+  const downloadChat = (chatItem) => {
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text(chatItem.name, 10, 10);
+    doc.setFontSize(10);
+    let y = 20;
+
+    chatItem.messages.forEach((msg) => {
+      const prefix = msg.sender === "user" ? "🙂 You: " : "🤖 Bot: ";
+      const lines = doc.splitTextToSize(prefix + msg.text, 180);
+      if (y + lines.length * 7 > 280) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(lines, 10, y);
+      y += lines.length * 7;
+    });
+
+    doc.save(`${chatItem.name || "Chat"}.pdf`);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -125,12 +177,49 @@ const AskAgent = () => {
             {chatHistory.map((chatItem) => (
               <li
                 key={chatItem.id}
-                onClick={() => loadChat(chatItem)}
-                className={`cursor-pointer px-2 py-1 rounded hover:bg-gray-200 ${
+                className={`relative group px-2 py-1 rounded hover:bg-gray-200 ${
                   chatItem.id === currentChatId ? "bg-white font-bold" : ""
                 }`}
               >
-                {chatItem.name}
+                <div
+                  className="cursor-pointer pr-6"
+                  onClick={() => loadChat(chatItem)}
+                >
+                  {chatItem.name}
+                </div>
+
+                {/* ⋯ Menu */}
+                <div className="absolute top-1 right-1 text-gray-500">
+                  <button
+                    className="text-lg"
+                    onClick={() => toggleMenu(chatItem.id)}
+                  >
+                    ⋯
+                  </button>
+
+                  {chatItem.showMenu && (
+                    <div className="absolute right-0 z-10 mt-2 w-32 bg-white border rounded shadow text-xs">
+                      <button
+                        onClick={() => renameChat(chatItem.id)}
+                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                      >
+                        Rename
+                      </button>
+                      <button
+                        onClick={() => deleteChat(chatItem.id)}
+                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-red-500"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => downloadChat(chatItem)}
+                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                      >
+                        Download PDF
+                      </button>
+                    </div>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

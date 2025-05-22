@@ -57,7 +57,7 @@ const AskAgent = () => {
     setLoading(true);
 
     try {
-      const endpoint = useMemory ? "/chat" : "/ask";
+      const endpoint = useMemory ? "/chat" : "/chat";
       const res = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

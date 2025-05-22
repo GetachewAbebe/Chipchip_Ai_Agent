@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import examples, chat, logs  # ask removed
-
+from app.routes import examples, chat, logs  
 app = FastAPI(title="ChipChip AI Agent")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, specify allowed frontend origins
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

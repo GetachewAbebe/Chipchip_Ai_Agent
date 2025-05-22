@@ -1,21 +1,20 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
-from app.utils.logger import logger  # ✅ Import logger
+from app.utils.logger import logger
 
-router = APIRouter()
-
-feedback_store = []  # In-memory store for now
+router = APIRouter(prefix="/feedback", tags=["Feedback"])
 
 class FeedbackRequest(BaseModel):
     question: str
     answer: str
-    rating: int  # 1 (bad) to 5 (excellent)
-    comment: str = ""
+    feedback: str  # Expected: "Helpful", "Not Helpful", etc.
 
-@router.post("/feedback")
-def submit_feedback(feedback: FeedbackRequest):
+@router.post("/")
+async def receive_feedback(payload: FeedbackRequest):
     try:
-        feedback_store.append(feedback.dict())
-        return {"status": "received", "message": "Thank you for your feedback!"}
+        logger.info(f"📩 Feedback received: {payload}")
+        # Optionally save to DB or log to a file
+        return {"status": "success", "message": "Thank you for your feedback!"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"🔥 Error in /feedback: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")

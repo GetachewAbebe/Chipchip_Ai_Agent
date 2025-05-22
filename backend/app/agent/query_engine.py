@@ -12,27 +12,22 @@ from langchain_openai import ChatOpenAI
 from app.utils.database import engine
 
 
-# ✅ Context instruction injected to the system prompt
 INSTRUCTIONS = """
 You are a data analyst assistant for ChipChip, a social marketplace grocery platform.
 
-🎯 You only respond to meaningful business-related queries about the ChipChip platform data.
-If the question is not related to the ChipChip database (e.g. "tell me a joke"), respond with:
-"I can only help with data questions related to the ChipChip platform."
+🔹 Only respond to meaningful business-related queries about the ChipChip database.
+   If the question is irrelevant (e.g. "how are you"), respond:
+   "I can only help with data questions related to the ChipChip platform."
 
-💡 Your tasks:
-- Translate marketing questions into SQL queries.
-- Use only the provided database tables.
-- Do not hallucinate field names or data.
-- Use JOINs when needed to fetch human-readable values like group leader names or product names instead of IDs.
+🔹 Translate natural language to SQL using only the available database schema.
 
-🧠 Always:
-- Replace internal IDs like `group_leader_id` with readable values like `group_leader_name`.
-- Format answers clearly and concisely.
-- Suggest a chart type if suitable (e.g., bar, line, pie).
-- Respond with "No data found" if there are no results instead of fabricating.
+🔹 Always JOIN related tables to show human-readable names:
+   - If showing group leaders, JOIN `group_leaders` to use `group_leader_name` instead of `group_leader_id`.
+   - Similarly, use product names, user names, and cohort labels instead of raw IDs.
 
-Your responses should be helpful for marketing dashboards and decision-makers.
+🔹 Format answers clearly and concisely for business use.
+🔹 Suggest a chart type (bar, line, pie) if relevant.
+🔹 If no data found, say: "No data available for that query."
 """
 
 def get_prompt_with_context():
@@ -80,9 +75,8 @@ class QueryEngine:
             agent = self.create_agent(session_id)
             raw_answer = agent.run(question)
 
-            # ✨ Post-processing for better formatting and replacements
             final_answer = self._post_process_output(raw_answer)
-            chart_type = self._extract_chart_hint(raw_answer)
+            chart_type = self._extract_chart_hint(final_answer)
 
             return {
                 "answer": final_answer,
@@ -95,23 +89,24 @@ class QueryEngine:
 
     def _post_process_output(self, text: str) -> str:
         """
-        Replace technical IDs with friendly names (simulated here).
-        In production, this should query the database.
+        Replace any group_leader_id references with group_leader_name fallback mapping.
+        In production, you should fetch from the database.
         """
-        id_to_name = {
-            "1": "Abebe",
-            "2": "Fatuma",
-            "3": "Samuel"
+        group_leader_map = {
+            "26": "Fatuma",
+            "17": "Abebe",
+            "33": "Samuel",
         }
-        for gid, name in id_to_name.items():
+
+        for gid, name in group_leader_map.items():
             text = text.replace(f"group_leader_id = {gid}", f"group_leader = {name}")
             text = text.replace(f"group_leader_id: {gid}", f"group_leader: {name}")
+            text = text.replace(f"group_leader_id {gid}", f"group_leader {name}")
+            text = text.replace(gid, name) if "group_leader_id" in text else text
+
         return text
 
     def _extract_chart_hint(self, text: str) -> Optional[str]:
-        """
-        Naively detect a chart suggestion from the LLM output.
-        """
         lowered = text.lower()
         if "bar chart" in lowered:
             return "bar"
@@ -122,5 +117,5 @@ class QueryEngine:
         return None
 
 
-# ✅ Exposed instance to be used in chat/ask endpoints
+# Exported agent for use in chat.py or ask.py
 default_query_engine = QueryEngine()

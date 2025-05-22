@@ -81,7 +81,7 @@ const AskAgent = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      ask();
+      chat();
     }
   };
 

@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { IoPaperPlaneOutline } from "react-icons/io5";
 import Header from "./Header";
 import Footer from "./Footer";
+import { v4 as uuidv4 } from "uuid";
 
-const LOCAL_STORAGE_KEY = "chipchip_chat_memory";
 const BACKEND_URL = "https://chipchip-ai-agent-backend.onrender.com";
-const SESSION_ID = "frontend-user-session"; // you can also generate a uuid here if needed
+
+const CHAT_HISTORY_KEY = "chipchip_chat_history";
 
 const TypingDots = () => (
   <div className="flex gap-1 items-center">
@@ -18,32 +19,52 @@ const TypingDots = () => (
 const AskAgent = () => {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
-  const [examples, setExamples] = useState([]);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(uuidv4());
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
+  // Load history from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const saved = localStorage.getItem(CHAT_HISTORY_KEY);
     if (saved) {
       try {
-        setMessages(JSON.parse(saved));
+        setChatHistory(JSON.parse(saved));
       } catch {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        localStorage.removeItem(CHAT_HISTORY_KEY);
       }
     }
-
-    fetch(`${BACKEND_URL}/examples`)
-      .then(res => res.json())
-      .then(data => setExamples(data.examples || []))
-      .catch(() => setExamples([]));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
-  }, [messages]);
-
+  // Scroll on new messages
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  // Save current chat to history when messages change
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    setChatHistory((prev) => {
+      const updated = [...prev];
+      const index = updated.findIndex((c) => c.id === currentChatId);
+      const name = updated[index]?.name || messages[0]?.text || "New Chat";
+
+      const updatedChat = {
+        id: currentChatId,
+        name: name.length > 50 ? name.slice(0, 50) + "..." : name,
+        messages,
+      };
+
+      if (index !== -1) {
+        updated[index] = updatedChat;
+      } else {
+        updated.push(updatedChat);
+      }
+
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
   }, [messages]);
 
   const ask = async () => {
@@ -60,7 +81,7 @@ const AskAgent = () => {
       const res = await fetch(`${BACKEND_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, session_id: SESSION_ID }),
+        body: JSON.stringify({ question, session_id: currentChatId }),
       });
 
       const data = await res.json();
@@ -81,13 +102,19 @@ const AskAgent = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      chat();
+      ask();
     }
   };
 
   const startNewChat = () => {
+    const newId = uuidv4();
+    setCurrentChatId(newId);
     setMessages([]);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  };
+
+  const loadChat = (chat) => {
+    setCurrentChatId(chat.id);
+    setMessages(chat.messages || []);
   };
 
   return (
@@ -95,15 +122,21 @@ const AskAgent = () => {
       <Header />
 
       <div className="flex flex-1">
-        {/* Left panel: Examples */}
-        <aside className="w-1/3 bg-gray-100 p-6">
-          <h3 className="text-lg font-semibold mb-4">💡 Sample Queries</h3>
-          <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
-            {examples.length ? examples.map((e, i) => (
-              <li key={i} onClick={() => setQuestion(e)} className="cursor-pointer hover:underline">
-                {e}
+        {/* Left panel: Chat History */}
+        <aside className="w-1/3 bg-gray-100 p-6 overflow-y-auto">
+          <h3 className="text-lg font-semibold mb-4">🗂️ Chat History</h3>
+          <ul className="space-y-2 text-sm">
+            {chatHistory.map((chat) => (
+              <li
+                key={chat.id}
+                onClick={() => loadChat(chat)}
+                className={`cursor-pointer px-2 py-1 rounded hover:bg-gray-200 ${
+                  chat.id === currentChatId ? "bg-white font-bold" : ""
+                }`}
+              >
+                {chat.name}
               </li>
-            )) : <li>Loading examples...</li>}
+            ))}
           </ul>
         </aside>
 
@@ -129,7 +162,6 @@ const AskAgent = () => {
                 }`}
               >
                 {msg.sender === "bot" && <div className="text-xl">🤖</div>}
-
                 <div
                   className={`max-w-[70%] px-4 py-2 rounded-xl shadow-sm text-sm ${
                     msg.sender === "user"
@@ -139,7 +171,6 @@ const AskAgent = () => {
                 >
                   <p className="text-gray-800">{msg.text}</p>
                 </div>
-
                 {msg.sender === "user" && <div className="text-xl">🙂</div>}
               </div>
             ))}

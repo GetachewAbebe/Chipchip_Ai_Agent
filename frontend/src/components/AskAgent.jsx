@@ -23,7 +23,10 @@ const AskAgent = () => {
   const [currentChatId, setCurrentChatId] = useState(uuidv4());
   const [loading, setLoading] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [activeDropdownId, setActiveDropdownId] = useState(null);
+
   const scrollRef = useRef(null);
+  const dropdownRefs = useRef({});
 
   useEffect(() => {
     const saved = localStorage.getItem(CHAT_HISTORY_KEY);
@@ -52,7 +55,6 @@ const AskAgent = () => {
         id: currentChatId,
         name: name.length > 50 ? name.slice(0, 50) + "..." : name,
         messages,
-        showMenu: false,
       };
 
       if (index !== -1) {
@@ -65,6 +67,18 @@ const AskAgent = () => {
       return updated;
     });
   }, [messages]);
+
+  // ✅ Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const ref = dropdownRefs.current[activeDropdownId];
+      if (ref && !ref.contains(e.target)) {
+        setActiveDropdownId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeDropdownId]);
 
   const chat = async () => {
     if (!question.trim()) return;
@@ -116,21 +130,11 @@ const AskAgent = () => {
     setMessages(chatItem.messages || []);
   };
 
-  const toggleMenu = (chatId) => {
-    setChatHistory((prev) =>
-      prev.map((chat) =>
-        chat.id === chatId
-          ? { ...chat, showMenu: !chat.showMenu }
-          : { ...chat, showMenu: false }
-      )
-    );
-  };
-
   const renameChat = (chatId) => {
     const newName = window.prompt("Enter new chat name:");
     if (!newName) return;
     const updated = chatHistory.map(chat =>
-      chat.id === chatId ? { ...chat, name: newName, showMenu: false } : chat
+      chat.id === chatId ? { ...chat, name: newName } : chat
     );
     setChatHistory(updated);
     localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(updated));
@@ -189,17 +193,22 @@ const AskAgent = () => {
                   {chatItem.name}
                 </div>
 
-                {/* ⋯ Menu */}
+                {/* ⋯ Dropdown */}
                 <div className="absolute top-1 right-1 text-gray-500">
                   <button
                     className="text-lg"
-                    onClick={() => toggleMenu(chatItem.id)}
+                    onClick={() =>
+                      setActiveDropdownId(prev => prev === chatItem.id ? null : chatItem.id)
+                    }
                   >
                     ⋯
                   </button>
 
-                  {chatItem.showMenu && (
-                    <div className="absolute right-0 z-10 mt-2 w-32 bg-white border rounded shadow text-xs">
+                  {activeDropdownId === chatItem.id && (
+                    <div
+                      ref={(el) => (dropdownRefs.current[chatItem.id] = el)}
+                      className="absolute right-0 mt-2 w-32 bg-white border rounded shadow text-xs transition-all duration-150 origin-top-right animate-fadeIn"
+                    >
                       <button
                         onClick={() => renameChat(chatItem.id)}
                         className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
@@ -292,8 +301,8 @@ const AskAgent = () => {
 
       {/* Delete Confirmation Modal */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-[90%] max-w-sm">
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 transition-opacity animate-fadeIn">
+          <div className="bg-white p-6 rounded shadow-lg w-[90%] max-w-sm transform transition-all scale-95 animate-scaleIn">
             <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
             <p className="text-sm text-gray-700 mb-6">
               Are you sure you want to delete this chat?

@@ -5,6 +5,7 @@ The ChipChip AI Agent is a proof-of-concept (PoC) application designed to empowe
 ## Live Demo
 
 Frontend: https://chipchip-ai-agent-frontend.onrender.com/
+
 Backend API: https://chipchip-ai-agent-backend.onrender.com/docs
 
 ## Features
@@ -60,22 +61,10 @@ Chat history is saved to PostgreSQL and accessible across sessions.
 ## Manage Chats:
 
 Rename, delete, or download chats as PDFs using the sidebar dropdown.
-
 Switch between sessions to review past queries.
-
-
-In-Memory LLM Context: ConversationBufferMemory is in-memory, lost on server restart (though chat history persists in PostgreSQL).
-
-
+In-Memory LLM Context: ConversationBufferMemory is in-memory, lost on server restart.
 Hardcoded Mappings: Group leader IDs are mapped manually in query_engine.py.
-
-
-Chart Rendering: Suggestions are displayed but not visualized.
-
-
 Scalability: PostgreSQL needs optimization for high concurrency.
-
-
 Security: No authentication or rate limiting in the API.
 
 ## Future Improvements
@@ -94,8 +83,8 @@ Testing: Add unit tests (Pytest, Jest) and end-to-end tests (Cypress).
 
 ## Contact
 
-Project Owner: [Getachew Abebe]
+Project Owner: Getachew Abebe
 
-Email: [gechachin@gmail.com]
+Email: gechachin@gmail.com
 
-GitHub: [https://github.com/GetachewAbebe]
+GitHub: https://github.com/GetachewAbebe

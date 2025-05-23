@@ -79,8 +79,6 @@ Security: Add JWT authentication and rate limiting to FastAPI.
 
 Advanced Analytics: Support cohort analysis and predictive insights.
 
-Testing: Add unit tests (Pytest, Jest) and end-to-end tests (Cypress).
-
 ## Contact
 
 Project Owner: Getachew Abebe

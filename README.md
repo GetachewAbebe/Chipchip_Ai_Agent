@@ -86,3 +86,8 @@ Project Owner: Getachew Abebe
 Email: gechachin@gmail.com
 
 GitHub: https://github.com/GetachewAbebe
+
+
+## Documentation Link: 
+
+https://docs.google.com/document/d/1JO062dpcnEobDxq2FLrbAiGnS_UCtXYAepx_8ceR7GM/edit?usp=sharing

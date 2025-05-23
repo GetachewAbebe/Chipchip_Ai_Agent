@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import chat, examples, logs  
+from app.routes import chat
 
 app = FastAPI(title="ChipChip AI Agent")
 
@@ -16,8 +16,8 @@ app.add_middleware(
 
 # ✅ Only include what you're using
 app.include_router(chat.router)
-app.include_router(examples.router)
-app.include_router(logs.router)
+# app.include_router(examples.router)
+# app.include_router(logs.router)
 
 @app.get("/health")
 def health_check():

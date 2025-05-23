@@ -92,3 +92,10 @@ Advanced Analytics: Support cohort analysis and predictive insights.
 
 Testing: Add unit tests (Pytest, Jest) and end-to-end tests (Cypress).
 
+## Contact
+
+Project Owner: [Getachew Abebe]
+
+Email: [gechachin@gmail.com]
+
+GitHub: [https://github.com/GetachewAbebe]

@@ -1,6 +1,5 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
-
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -11,23 +10,25 @@ from langchain_openai import ChatOpenAI
 
 from app.utils.database import engine
 
-
 INSTRUCTIONS = """
 You are a data analyst assistant for ChipChip, a social marketplace grocery platform.
 
-🔹 Only respond to meaningful business-related queries about the ChipChip database.
-   If the question is irrelevant (e.g. "how are you"), respond:
-   "I can only help with data questions related to the ChipChip platform."
+🔹 You only answer meaningful business-related queries using the ChipChip database.
+🔹 If the question is irrelevant (e.g., “how are you”), respond:
+  "I can only help with data questions related to the ChipChip platform."
 
-🔹 Translate natural language to SQL using only the available database schema.
+🔹 Group Orders:
+  - Defined as orders where `order_type = 'group'`
+  - Sales volume is the SUM of `total_amount` column in the `orders` table
+  - Use `order_date` for time filters like "past 30 days"
 
-🔹 Always JOIN related tables to show human-readable names:
-   - If showing group leaders, JOIN `group_leaders` to use `group_leader_name` instead of `group_leader_id`.
-   - Similarly, use product names, user names, and cohort labels instead of raw IDs.
+🔹 Always join related tables to show readable names:
+  - Use `group_leader_name` instead of `group_leader_id`
+  - Use `product_name`, `user_name`, and `cohort` instead of technical IDs
 
-🔹 Format answers clearly and concisely for business use.
-🔹 Suggest a chart type (bar, line, pie) if relevant.
-🔹 If no data found, say: "No data available for that query."
+🔹 Format numbers and totals properly (e.g., $14,519.70)
+🔹 Suggest chart types (bar, line, pie) when relevant
+🔹 If there is no data, say: “No data available for that query.”
 """
 
 def get_prompt_with_context():
@@ -73,9 +74,16 @@ class QueryEngine:
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
         try:
             agent = self.create_agent(session_id)
-            raw_answer = agent.run(question)
+            response = agent.run(question)
 
-            final_answer = self._post_process_output(raw_answer)
+            # Handle iteration stop case
+            if "Agent stopped due to iteration limit" in response:
+                return {
+                    "answer": "⚠️ I couldn’t complete the answer in time. Please rephrase or try a narrower question.",
+                    "session_id": session_id
+                }
+
+            final_answer = self._post_process_output(response)
             chart_type = self._extract_chart_hint(final_answer)
 
             return {
@@ -88,10 +96,7 @@ class QueryEngine:
             return {"error": str(e)}
 
     def _post_process_output(self, text: str) -> str:
-        """
-        Replace any group_leader_id references with group_leader_name fallback mapping.
-        In production, you should fetch from the database.
-        """
+        # Optional: hardcoded name map for readability fallback
         group_leader_map = {
             "26": "Fatuma",
             "17": "Abebe",
@@ -99,10 +104,20 @@ class QueryEngine:
         }
 
         for gid, name in group_leader_map.items():
+            text = text.replace(f"user_id = {gid}", f"user = {name}")
             text = text.replace(f"group_leader_id = {gid}", f"group_leader = {name}")
-            text = text.replace(f"group_leader_id: {gid}", f"group_leader: {name}")
-            text = text.replace(f"group_leader_id {gid}", f"group_leader {name}")
             text = text.replace(gid, name) if "group_leader_id" in text else text
+
+        # Format any unformatted float values that look like sales (e.g., 14308.3 → $14,308.30)
+        import re
+        matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
+        for match in matches:
+            raw = match[0] + (match[1] or "")
+            try:
+                formatted = "${:,.2f}".format(float(raw))
+                text = text.replace(f"${raw}", formatted)
+            except:
+                continue
 
         return text
 
@@ -117,5 +132,5 @@ class QueryEngine:
         return None
 
 
-# Exported agent for use in chat.py or ask.py
+# Import this where needed
 default_query_engine = QueryEngine()

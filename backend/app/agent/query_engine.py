@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
+import re
 
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
@@ -10,10 +11,11 @@ from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_openai import ChatOpenAI
 
+from sqlalchemy import text as sql_text
 from app.utils.database import engine
 
 
-# 🔹 Load schema.sql from file
+# Load schema.sql to guide the LLM
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -22,7 +24,7 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-# 🔹 Prompt with schema awareness and marketing logic
+# Prompt template with schema + clear join instructions
 def get_prompt_with_context(schema: str):
     return ChatPromptTemplate.from_messages([
         SystemMessage(content=f"""
@@ -31,18 +33,19 @@ You are ChipChip’s AI-powered data analyst. Use the following database schema 
 🔍 Database Schema:
 {schema}
 
-🔹 Group orders have `groups_carts_id` NOT NULL.
-🔹 Use readable names:
-   - `users.name` instead of `user_id`
-   - `products.name`, `categories.name`
-   - Join `users` where `user_type = 'group_leader'`
-🔹 Use `order_date` for filtering
-🔹 Use `DATE_TRUNC('month', order_date)` for monthly stats
-🔹 Use `EXTRACT(DOW FROM order_date)` for weekends
+🔹 Business Rules:
+- Group orders have `groups_carts_id` NOT NULL.
+- Use readable names:
+    • `users.name` instead of `user_id`
+    • `products.name`, `categories.name`
+    • When referencing group leaders, join `users` ON `users.id = groups.created_by`
+- Use `order_date` for filtering
+- Use `DATE_TRUNC('month', order_date)` for monthly stats
+- Use `EXTRACT(DOW FROM order_date)` for weekends (0 = Sunday, 6 = Saturday)
+- When returning tabular results, always show names instead of IDs
 
-❗ If no data is found, reply with: “No data available for that query.”
-
-Only respond to marketing/business-related queries.
+❗ If no data is found, reply: “No data available for that query.”
+❗ If a query is unrelated to data analysis (e.g. "hello"), reply: “I only answer business-related queries for the ChipChip platform.”
         """),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}")
@@ -85,20 +88,21 @@ class QueryEngine:
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
         try:
             agent = self.create_agent(session_id)
-            response = agent.run(question)
 
-            if "Agent stopped due to iteration limit" in response:
-                return {
-                    "answer": "⚠️ I couldn’t complete the answer in time. Please rephrase or try a narrower question.",
-                    "session_id": session_id
-                }
+            result = agent.invoke(
+                {"input": question},
+                config={"intermediate_steps": True}
+            )
 
-            final_answer = self._post_process_output(response)
+            raw_answer = result.get("output", "")
+            final_answer = self._post_process_output(raw_answer)
             chart_type = self._extract_chart_hint(final_answer)
+            table_data = self._extract_table_from_steps(result.get("intermediate_steps", []))
 
             return {
                 "answer": final_answer,
                 "chart_suggestion": chart_type,
+                "table": table_data,
                 "session_id": session_id
             }
 
@@ -106,18 +110,10 @@ class QueryEngine:
             return {"error": str(e)}
 
     def _post_process_output(self, text: str) -> str:
-        import re
-        group_leader_map = {
-            "26": "Fatuma",
-            "17": "Abebe",
-            "33": "Samuel",
-        }
+        # Step 1: Replace known UUIDs with names using fallback
+        text = self.map_user_ids_to_names(text)
 
-        for gid, name in group_leader_map.items():
-            text = text.replace(f"user_id = {gid}", f"user = {name}")
-            text = text.replace(f"group_leader_id = {gid}", f"group_leader = {name}")
-            text = text.replace(gid, name) if "group_leader_id" in text else text
-
+        # Step 2: Format numbers with dollar signs if applicable
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -126,6 +122,25 @@ class QueryEngine:
                 text = text.replace(f"${raw}", formatted)
             except:
                 continue
+
+        return text
+
+    def map_user_ids_to_names(self, text: str) -> str:
+        ids = re.findall(r"\b[0-9a-f]{8}-[0-9a-f\-]{27,36}\b", text)
+        if not ids:
+            return text
+
+        placeholders = ','.join(f"'{id}'" for id in ids)
+        query = sql_text(f"SELECT id, name FROM users WHERE id IN ({placeholders})")
+
+        try:
+            with engine.connect() as conn:
+                results = conn.execute(query).fetchall()
+                id_name_map = {str(row[0]): row[1] for row in results}
+                for uid, name in id_name_map.items():
+                    text = text.replace(uid, name)
+        except Exception:
+            pass
 
         return text
 
@@ -139,6 +154,21 @@ class QueryEngine:
             return "pie"
         return None
 
+    def _extract_table_from_steps(self, steps: list) -> Optional[Dict[str, Any]]:
+        for step in steps:
+            if isinstance(step, tuple) and "Action Input" in step[0]:
+                sql = step[0].split("Action Input:")[-1].strip()
+                try:
+                    result = self.db.run(sql, fetch=True)
+                    if isinstance(result, list) and result:
+                        return {
+                            "columns": list(result[0].keys()),
+                            "rows": [list(row.values()) for row in result]
+                        }
+                except Exception:
+                    continue
+        return None
 
-# ✅ Shared instance
+
+# Shared instance to import in chat.py
 default_query_engine = QueryEngine()

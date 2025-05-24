@@ -13,6 +13,7 @@ from sqlalchemy import text as sql_text
 from app.utils.database import engine
 
 
+# Load schema.sql for schema-aware responses
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -21,9 +22,12 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
+# System message: schema + business rules + NO markdown
 def get_system_message_with_schema(schema: str) -> str:
     return f"""
-You are ChipChip’s AI-powered data analyst. You answer business and marketing questions using the following database schema and business rules.
+You are ChipChip’s AI-powered data analyst. You answer business and marketing questions using the SQL database provided below.
+
+⚠️ DO NOT use markdown formatting (like triple backticks ``` or ```sql) in your SQL queries. Only write raw SQL.
 
 🔍 Database Schema:
 {schema}
@@ -37,10 +41,10 @@ You are ChipChip’s AI-powered data analyst. You answer business and marketing 
 - Use `order_date` for filtering
 - Use `DATE_TRUNC('month', order_date)` for monthly stats
 - Use `EXTRACT(DOW FROM order_date)` for weekends (0 = Sunday, 6 = Saturday)
-- When returning tabular results, always show names instead of IDs
+- Always return real query results, not just summaries or explanations.
 
-❗ If no data is found, reply: “No data available for that query.”
-❗ If a query is unrelated to data analysis (e.g. "hello"), reply: “I only answer business-related queries for the ChipChip platform.”
+❗ If no data is found, say: “No data available for that query.”
+❗ If the question is unrelated to analytics, say: “I only answer business-related queries for the ChipChip platform.”
 """
 
 
@@ -97,6 +101,9 @@ class QueryEngine:
     def _post_process_output(self, text: str) -> str:
         text = self.map_user_ids_to_names(text)
 
+        # Optionally strip triple backticks if they ever sneak in
+        text = text.replace("```sql", "").replace("```", "").strip()
+
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -138,5 +145,5 @@ class QueryEngine:
         return None
 
 
-# Shared instance to import in chat.py
+# Shared instance for import in routes/chat.py
 default_query_engine = QueryEngine()

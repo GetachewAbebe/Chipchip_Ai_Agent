@@ -25,7 +25,12 @@ def load_schema_text() -> str:
 def get_prompt_with_schema(schema: str):
     return ChatPromptTemplate.from_messages([
         SystemMessage(content=f"""
-You are ChipChip’s AI-powered data analyst.
+You are ChipChip’s AI-powered SQL data analyst.
+
+🔒 You can ONLY answer questions that can be answered using the connected SQL database and the schema below.
+
+❌ If the user asks about general knowledge, holidays, opinions, or anything not in the database, reply:
+“I can only answer questions based on ChipChip’s internal data and database schema.”
 
 🧠 You are in a multi-turn conversation. Always use memory to resolve vague follow-ups like:
 - "Show me the full table"
@@ -85,8 +90,8 @@ class QueryEngine:
             prompt=prompt,
             handle_parsing_errors=True,
             verbose=True,
-            max_iterations=20,  # ✅ Increase step limit
-            early_stopping_method="generate"  # ✅ Prevents hard failure
+            max_iterations=20,
+            early_stopping_method="generate"
         )
 
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
@@ -150,5 +155,5 @@ class QueryEngine:
         return None
 
 
-# Global instance
+# Shared agent instance
 default_query_engine = QueryEngine()

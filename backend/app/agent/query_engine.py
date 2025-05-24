@@ -1,5 +1,7 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
+from pathlib import Path
+
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -10,30 +12,38 @@ from langchain_openai import ChatOpenAI
 
 from app.utils.database import engine
 
-INSTRUCTIONS = """
-You are a data analyst assistant for ChipChip, a social marketplace grocery platform.
 
-🔹 You only answer meaningful business-related queries using the ChipChip database.
-🔹 If the question is irrelevant (e.g., “how are you”), respond:
-  "I can only help with data questions related to the ChipChip platform."
+# 🔹 Load schema.sql from file
+def load_schema_text() -> str:
+    schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
+    try:
+        return schema_path.read_text()
+    except Exception:
+        return "-- Schema could not be loaded."
 
-🔹 Group Orders:
-  - Defined as orders where `order_type = 'group'`
-  - Sales volume is the SUM of `total_amount` column in the `orders` table
-  - Use `order_date` for time filters like "past 30 days"
 
-🔹 Always join related tables to show readable names:
-  - Use `group_leader_name` instead of `group_leader_id`
-  - Use `product_name`, `user_name`, and `cohort` instead of technical IDs
-
-🔹 Format numbers and totals properly (e.g., $14,519.70)
-🔹 Suggest chart types (bar, line, pie) when relevant
-🔹 If there is no data, say: “No data available for that query.”
-"""
-
-def get_prompt_with_context():
+# 🔹 Prompt with schema awareness and marketing logic
+def get_prompt_with_context(schema: str):
     return ChatPromptTemplate.from_messages([
-        SystemMessage(content=INSTRUCTIONS),
+        SystemMessage(content=f"""
+You are ChipChip’s AI-powered data analyst. Use the following database schema and business rules to write accurate and helpful SQL-based answers.
+
+🔍 Database Schema:
+{schema}
+
+🔹 Group orders have `groups_carts_id` NOT NULL.
+🔹 Use readable names:
+   - `users.name` instead of `user_id`
+   - `products.name`, `categories.name`
+   - Join `users` where `user_type = 'group_leader'`
+🔹 Use `order_date` for filtering
+🔹 Use `DATE_TRUNC('month', order_date)` for monthly stats
+🔹 Use `EXTRACT(DOW FROM order_date)` for weekends
+
+❗ If no data is found, reply with: “No data available for that query.”
+
+Only respond to marketing/business-related queries.
+        """),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}")
     ])
@@ -60,13 +70,14 @@ class QueryEngine:
     def create_agent(self, session_id: str) -> Any:
         memory = self.get_or_create_memory(session_id)
         toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
+        schema_text = load_schema_text()
 
         return initialize_agent(
             tools=toolkit.get_tools(),
             llm=self.llm,
             agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             memory=memory,
-            prompt=get_prompt_with_context(),
+            prompt=get_prompt_with_context(schema_text),
             handle_parsing_errors=True,
             verbose=True
         )
@@ -76,7 +87,6 @@ class QueryEngine:
             agent = self.create_agent(session_id)
             response = agent.run(question)
 
-            # Handle iteration stop case
             if "Agent stopped due to iteration limit" in response:
                 return {
                     "answer": "⚠️ I couldn’t complete the answer in time. Please rephrase or try a narrower question.",
@@ -96,7 +106,7 @@ class QueryEngine:
             return {"error": str(e)}
 
     def _post_process_output(self, text: str) -> str:
-        # Optional: hardcoded name map for readability fallback
+        import re
         group_leader_map = {
             "26": "Fatuma",
             "17": "Abebe",
@@ -108,8 +118,6 @@ class QueryEngine:
             text = text.replace(f"group_leader_id = {gid}", f"group_leader = {name}")
             text = text.replace(gid, name) if "group_leader_id" in text else text
 
-        # Format any unformatted float values that look like sales (e.g., 14308.3 → $14,308.30)
-        import re
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -132,5 +140,5 @@ class QueryEngine:
         return None
 
 
-# Import this where needed
+# ✅ Shared instance
 default_query_engine = QueryEngine()

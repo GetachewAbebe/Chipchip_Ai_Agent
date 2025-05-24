@@ -13,6 +13,7 @@ from sqlalchemy import text as sql_text
 from app.utils.database import engine
 
 
+# Load schema.sql to guide the LLM with real table structure
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -21,14 +22,14 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
+# Inject business instructions + schema + memory usage rules
 def get_system_message_with_schema(schema: str) -> str:
     return f"""
-You are ChipChip’s AI-powered data analyst. You are in an ongoing conversation with a marketing stakeholder.
+You are ChipChip’s AI-powered data analyst. You are having an ongoing conversation with a marketing stakeholder.
 
-🧠 Use the previous chat context to answer follow-up questions. For example:
-- If the user says “What about December?”, refer to the last query.
-- If they say “Show the full list”, continue the previous answer.
-- Don’t ask them to repeat themselves — remember for them.
+🧠 You must ALWAYS consider previous messages in the conversation. When the user asks follow-up questions (e.g. "show me all", "as a table", "what about December"), assume they are referencing the last query. Look at chat memory to determine the full intent.
+
+💡 Do not ask for clarification unless absolutely necessary. Use prior context to answer intelligently.
 
 ⚠️ DO NOT use markdown formatting (like triple backticks ``` or ```sql) in your SQL queries. Only write raw SQL.
 
@@ -44,7 +45,7 @@ You are ChipChip’s AI-powered data analyst. You are in an ongoing conversation
 - Use `order_date` for filtering
 - Use `DATE_TRUNC('month', order_date)` for monthly stats
 - Use `EXTRACT(DOW FROM order_date)` for weekends (0 = Sunday, 6 = Saturday)
-- Always return actual query results, not just summaries or explanations.
+- Always return actual query results.
 
 ❗ If no data is found, say: “No data available for that query.”
 ❗ If the question is not business-related, say: “I only answer business-related questions for the ChipChip platform.”
@@ -104,9 +105,10 @@ class QueryEngine:
     def _post_process_output(self, text: str) -> str:
         text = self.map_user_ids_to_names(text)
 
-        # Clean up markdown formatting if it slips in
+        # Clean up accidental markdown
         text = text.replace("```sql", "").replace("```", "").strip()
 
+        # Format long numbers as currency
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -148,5 +150,5 @@ class QueryEngine:
         return None
 
 
-# Shared instance to import in routes/chat.py
+# Shared agent instance to be used in routes/chat.py
 default_query_engine = QueryEngine()

@@ -14,7 +14,6 @@ from sqlalchemy import text as sql_text
 from app.utils.database import engine
 
 
-# Load schema file
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -23,7 +22,6 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-# Custom system prompt with memory, schema, business logic
 def get_prompt_with_schema(schema: str):
     return ChatPromptTemplate.from_messages([
         SystemMessage(content=f"""
@@ -33,20 +31,22 @@ You are ChipChip’s AI-powered data analyst.
 - "Show me the full table"
 - "What about December?"
 
-⚠️ DO NOT use markdown syntax like triple backticks (``` or ```sql) in SQL queries.
+💡 If you're unsure what to do, make your best guess and run a meaningful SQL query. Do not repeat thoughts or get stuck.
 
-🔍 Use this schema to construct correct SQL:
+⚠️ DO NOT use markdown formatting (``` or ```sql) in SQL queries. Only output raw SQL.
+
+🔍 Use this schema to construct SQL:
 {schema}
 
-🔹 Business Logic:
-- Group orders have `groups_carts_id` NOT NULL
-- Use `users.name`, `products.name`, etc.
-- Join users where needed for readable names
-- Use `DATE_TRUNC('month', order_date)` for monthly grouping
-- Use `EXTRACT(DOW FROM order_date)` for day-of-week filters
+🔹 Business Rules:
+- Group orders have `groups_carts_id` NOT NULL.
+- Use readable names (`users.name`, `products.name`, etc.)
+- Join `users` via `groups.created_by` for leader names
+- Use `DATE_TRUNC('month', order_date)` for monthly groupings
+- Use `EXTRACT(DOW FROM order_date)` for weekday filters
 
-🎯 Always return meaningful, structured results.
-"""),
+🎯 Always return actual data or say “No data available.”
+        """),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad")
@@ -85,7 +85,8 @@ class QueryEngine:
             prompt=prompt,
             handle_parsing_errors=True,
             verbose=True,
-            max_iterations=10
+            max_iterations=20,  # ✅ Increase step limit
+            early_stopping_method="generate"  # ✅ Prevents hard failure
         )
 
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
@@ -149,5 +150,5 @@ class QueryEngine:
         return None
 
 
-# Shared instance to import in chat.py
+# Global instance
 default_query_engine = QueryEngine()

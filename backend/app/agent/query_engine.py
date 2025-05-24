@@ -13,7 +13,6 @@ from sqlalchemy import text as sql_text
 from app.utils.database import engine
 
 
-# Load schema.sql for schema-aware responses
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -22,10 +21,14 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-# System message: schema + business rules + NO markdown
 def get_system_message_with_schema(schema: str) -> str:
     return f"""
-You are ChipChip’s AI-powered data analyst. You answer business and marketing questions using the SQL database provided below.
+You are ChipChip’s AI-powered data analyst. You are in an ongoing conversation with a marketing stakeholder.
+
+🧠 Use the previous chat context to answer follow-up questions. For example:
+- If the user says “What about December?”, refer to the last query.
+- If they say “Show the full list”, continue the previous answer.
+- Don’t ask them to repeat themselves — remember for them.
 
 ⚠️ DO NOT use markdown formatting (like triple backticks ``` or ```sql) in your SQL queries. Only write raw SQL.
 
@@ -41,10 +44,10 @@ You are ChipChip’s AI-powered data analyst. You answer business and marketing 
 - Use `order_date` for filtering
 - Use `DATE_TRUNC('month', order_date)` for monthly stats
 - Use `EXTRACT(DOW FROM order_date)` for weekends (0 = Sunday, 6 = Saturday)
-- Always return real query results, not just summaries or explanations.
+- Always return actual query results, not just summaries or explanations.
 
 ❗ If no data is found, say: “No data available for that query.”
-❗ If the question is unrelated to analytics, say: “I only answer business-related queries for the ChipChip platform.”
+❗ If the question is not business-related, say: “I only answer business-related questions for the ChipChip platform.”
 """
 
 
@@ -101,7 +104,7 @@ class QueryEngine:
     def _post_process_output(self, text: str) -> str:
         text = self.map_user_ids_to_names(text)
 
-        # Optionally strip triple backticks if they ever sneak in
+        # Clean up markdown formatting if it slips in
         text = text.replace("```sql", "").replace("```", "").strip()
 
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
@@ -145,5 +148,5 @@ class QueryEngine:
         return None
 
 
-# Shared instance for import in routes/chat.py
+# Shared instance to import in routes/chat.py
 default_query_engine = QueryEngine()

@@ -1,21 +1,19 @@
 from typing import Optional, Dict, Any
-from datetime import datetime
 from pathlib import Path
 import re
 
-from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain_openai import ChatOpenAI
-
+from langchain.agents.agent_toolkits import create_sql_agent
 from sqlalchemy import text as sql_text
+
 from app.utils.database import engine
 
 
-# Load schema.sql to guide the LLM
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -24,7 +22,6 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-# Prompt template with schema + clear join instructions
 def get_prompt_with_context(schema: str):
     return ChatPromptTemplate.from_messages([
         SystemMessage(content=f"""
@@ -59,7 +56,7 @@ class QueryEngine:
         llm: Optional[ChatOpenAI] = None
     ):
         self.db = db or SQLDatabase(engine)
-        self.llm = llm or ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+        self.llm = llm or ChatOpenAI(temperature=0, model="gpt-4o")
         self.memory_sessions: Dict[str, ConversationBufferMemory] = {}
 
     def get_or_create_memory(self, session_id: str) -> ConversationBufferMemory:
@@ -70,39 +67,32 @@ class QueryEngine:
             )
         return self.memory_sessions[session_id]
 
-    def create_agent(self, session_id: str) -> Any:
+    def create_agent(self, session_id: str):
         memory = self.get_or_create_memory(session_id)
-        toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
         schema_text = load_schema_text()
+        prompt = get_prompt_with_context(schema_text)
+        toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
 
-        return initialize_agent(
-            tools=toolkit.get_tools(),
+        return create_sql_agent(
             llm=self.llm,
-            agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+            toolkit=toolkit,
+            prompt=prompt,
             memory=memory,
-            prompt=get_prompt_with_context(schema_text),
-            handle_parsing_errors=True,
             verbose=True
         )
 
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
         try:
             agent = self.create_agent(session_id)
+            result = agent.invoke({"input": question})
 
-            result = agent.invoke(
-                {"input": question},
-                config={"intermediate_steps": True}
-            )
-
-            raw_answer = result.get("output", "")
-            final_answer = self._post_process_output(raw_answer)
+            raw_answer = result.get("output", "") if isinstance(result, dict) else result
+            final_answer = self._post_process_output(str(raw_answer))
             chart_type = self._extract_chart_hint(final_answer)
-            table_data = self._extract_table_from_steps(result.get("intermediate_steps", []))
 
             return {
                 "answer": final_answer,
                 "chart_suggestion": chart_type,
-                "table": table_data,
                 "session_id": session_id
             }
 
@@ -110,10 +100,8 @@ class QueryEngine:
             return {"error": str(e)}
 
     def _post_process_output(self, text: str) -> str:
-        # Step 1: Replace known UUIDs with names using fallback
         text = self.map_user_ids_to_names(text)
 
-        # Step 2: Format numbers with dollar signs if applicable
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -152,21 +140,6 @@ class QueryEngine:
             return "line"
         elif "pie chart" in lowered:
             return "pie"
-        return None
-
-    def _extract_table_from_steps(self, steps: list) -> Optional[Dict[str, Any]]:
-        for step in steps:
-            if isinstance(step, tuple) and "Action Input" in step[0]:
-                sql = step[0].split("Action Input:")[-1].strip()
-                try:
-                    result = self.db.run(sql, fetch=True)
-                    if isinstance(result, list) and result:
-                        return {
-                            "columns": list(result[0].keys()),
-                            "rows": [list(row.values()) for row in result]
-                        }
-                except Exception:
-                    continue
         return None
 
 

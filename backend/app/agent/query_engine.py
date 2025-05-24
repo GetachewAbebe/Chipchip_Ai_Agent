@@ -3,17 +3,18 @@ from pathlib import Path
 import re
 
 from langchain.memory import ConversationBufferMemory
+from langchain.agents import initialize_agent, AgentType
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain.agents.agent_toolkits import create_sql_agent
-from langchain_core.messages import SystemMessage
 from sqlalchemy import text as sql_text
 
 from app.utils.database import engine
 
 
-# Load schema.sql to guide the LLM with real table structure
+# Load schema file
 def load_schema_text() -> str:
     schema_path = Path(__file__).resolve().parents[2] / "backend/database/schema.sql"
     try:
@@ -22,34 +23,34 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-# Inject business instructions + schema + memory usage rules
-def get_system_message_with_schema(schema: str) -> str:
-    return f"""
-You are ChipChip’s AI-powered data analyst. You are having an ongoing conversation with a marketing stakeholder.
+# Custom system prompt with memory, schema, business logic
+def get_prompt_with_schema(schema: str):
+    return ChatPromptTemplate.from_messages([
+        SystemMessage(content=f"""
+You are ChipChip’s AI-powered data analyst.
 
-🧠 You must ALWAYS consider previous messages in the conversation. When the user asks follow-up questions (e.g. "show me all", "as a table", "what about December"), assume they are referencing the last query. Look at chat memory to determine the full intent.
+🧠 You are in a multi-turn conversation. Always use memory to resolve vague follow-ups like:
+- "Show me the full table"
+- "What about December?"
 
-💡 Do not ask for clarification unless absolutely necessary. Use prior context to answer intelligently.
+⚠️ DO NOT use markdown syntax like triple backticks (``` or ```sql) in SQL queries.
 
-⚠️ DO NOT use markdown formatting (like triple backticks ``` or ```sql) in your SQL queries. Only write raw SQL.
-
-🔍 Database Schema:
+🔍 Use this schema to construct correct SQL:
 {schema}
 
-🔹 Business Rules:
-- Group orders have `groups_carts_id` NOT NULL.
-- Use readable names:
-    • `users.name` instead of `user_id`
-    • `products.name`, `categories.name`
-    • When referencing group leaders, join `users` ON `users.id = groups.created_by`
-- Use `order_date` for filtering
-- Use `DATE_TRUNC('month', order_date)` for monthly stats
-- Use `EXTRACT(DOW FROM order_date)` for weekends (0 = Sunday, 6 = Saturday)
-- Always return actual query results.
+🔹 Business Logic:
+- Group orders have `groups_carts_id` NOT NULL
+- Use `users.name`, `products.name`, etc.
+- Join users where needed for readable names
+- Use `DATE_TRUNC('month', order_date)` for monthly grouping
+- Use `EXTRACT(DOW FROM order_date)` for day-of-week filters
 
-❗ If no data is found, say: “No data available for that query.”
-❗ If the question is not business-related, say: “I only answer business-related questions for the ChipChip platform.”
-"""
+🎯 Always return meaningful, structured results.
+"""),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ])
 
 
 class QueryEngine:
@@ -74,23 +75,25 @@ class QueryEngine:
         memory = self.get_or_create_memory(session_id)
         toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
         schema_text = load_schema_text()
-        system_message = SystemMessage(content=get_system_message_with_schema(schema_text))
+        prompt = get_prompt_with_schema(schema_text)
 
-        return create_sql_agent(
+        return initialize_agent(
+            tools=toolkit.get_tools(),
             llm=self.llm,
-            toolkit=toolkit,
+            agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             memory=memory,
-            system_message=system_message,
-            verbose=True
+            prompt=prompt,
+            handle_parsing_errors=True,
+            verbose=True,
+            max_iterations=10
         )
 
     def run_query(self, question: str, session_id: str) -> Dict[str, Any]:
         try:
             agent = self.create_agent(session_id)
-            result = agent.invoke({"input": question})
+            result = agent.run(question)
 
-            raw_answer = result.get("output", "") if isinstance(result, dict) else result
-            final_answer = self._post_process_output(str(raw_answer))
+            final_answer = self._post_process_output(str(result))
             chart_type = self._extract_chart_hint(final_answer)
 
             return {
@@ -104,11 +107,8 @@ class QueryEngine:
 
     def _post_process_output(self, text: str) -> str:
         text = self.map_user_ids_to_names(text)
-
-        # Clean up accidental markdown
         text = text.replace("```sql", "").replace("```", "").strip()
 
-        # Format long numbers as currency
         matches = re.findall(r"\$\s?(\d{4,})(\.\d{1,2})?", text)
         for match in matches:
             raw = match[0] + (match[1] or "")
@@ -117,7 +117,6 @@ class QueryEngine:
                 text = text.replace(f"${raw}", formatted)
             except:
                 continue
-
         return text
 
     def map_user_ids_to_names(self, text: str) -> str:
@@ -150,5 +149,5 @@ class QueryEngine:
         return None
 
 
-# Shared agent instance to be used in routes/chat.py
+# Shared instance to import in chat.py
 default_query_engine = QueryEngine()

@@ -4,11 +4,10 @@ import re
 
 from langchain.memory import ConversationBufferMemory
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import SystemMessage
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents.agent_toolkits import create_sql_agent
+from langchain_core.messages import SystemMessage
 from sqlalchemy import text as sql_text
 
 from app.utils.database import engine
@@ -22,10 +21,9 @@ def load_schema_text() -> str:
         return "-- Schema could not be loaded."
 
 
-def get_prompt_with_context(schema: str):
-    return ChatPromptTemplate.from_messages([
-        SystemMessage(content=f"""
-You are ChipChip’s AI-powered data analyst. Use the following database schema and business rules to write accurate and helpful SQL-based answers.
+def get_system_message_with_schema(schema: str) -> str:
+    return f"""
+You are ChipChip’s AI-powered data analyst. You answer business and marketing questions using the following database schema and business rules.
 
 🔍 Database Schema:
 {schema}
@@ -43,10 +41,7 @@ You are ChipChip’s AI-powered data analyst. Use the following database schema 
 
 ❗ If no data is found, reply: “No data available for that query.”
 ❗ If a query is unrelated to data analysis (e.g. "hello"), reply: “I only answer business-related queries for the ChipChip platform.”
-        """),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "{input}")
-    ])
+"""
 
 
 class QueryEngine:
@@ -69,15 +64,15 @@ class QueryEngine:
 
     def create_agent(self, session_id: str):
         memory = self.get_or_create_memory(session_id)
-        schema_text = load_schema_text()
-        prompt = get_prompt_with_context(schema_text)
         toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
+        schema_text = load_schema_text()
+        system_message = SystemMessage(content=get_system_message_with_schema(schema_text))
 
         return create_sql_agent(
             llm=self.llm,
             toolkit=toolkit,
-            prompt=prompt,
             memory=memory,
+            system_message=system_message,
             verbose=True
         )
 
